@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -34,6 +35,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -50,6 +52,10 @@ dependencies {
 
     implementation(libs.androidx.appcompat) // AppCompat
     implementation(libs.insert.koin.koin.android) // Koin
+    implementation(libs.retrofit) // Retrofit
+    implementation(libs.converter.gson) // Gson Converter for Retrofit
+    implementation(libs.okhttp) // OkHttp
+    implementation(libs.okhttp3.logging.interceptor) // Logging for OkHttp
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
