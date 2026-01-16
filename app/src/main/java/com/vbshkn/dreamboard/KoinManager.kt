@@ -3,11 +3,16 @@ package com.vbshkn.dreamboard
 import android.content.Context
 import com.vbshkn.dreamboard.data.remote.AccountIdInterceptor
 import com.vbshkn.dreamboard.data.remote.BearerAuthInterceptor
+import com.vbshkn.dreamboard.data.remote.RemoteImageDataSource
 import com.vbshkn.dreamboard.data.remote.VecteezyApi
+import com.vbshkn.dreamboard.data.repository.ImageRepository
+import com.vbshkn.dreamboard.presentation.viewmodel.TestViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -33,12 +38,25 @@ class KoinManager(private val context: Context) {
                 .build()
         }
         single { get<Retrofit>().create(VecteezyApi::class.java) }
+        single { RemoteImageDataSource(get()) }
+    }
+
+    val repositoryModule = module {
+        single { ImageRepository(get()) }
+    }
+
+    val viewModelModule = module {
+        viewModelOf(::TestViewModel)
     }
 
     fun startFull() = startKoin {
         androidContext(context)
         modules(
-            remoteModule
+            listOf(
+                remoteModule,
+                repositoryModule,
+                viewModelModule
+            )
         )
     }
 }
