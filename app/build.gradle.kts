@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.converter.gson) // Gson Converter for Retrofit
     implementation(libs.okhttp) // OkHttp
     implementation(libs.okhttp3.logging.interceptor) // Logging for OkHttp
+    implementation(libs.coil.compose) // Coil
+    implementation(libs.coil.network.okhttp) // OkHttp client for Coil
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
