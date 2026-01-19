@@ -21,7 +21,6 @@ class TestViewModel(
 
     init {
         loadImages()
-        loadImage()
     }
 
     private fun loadImage(id: Long = 21848820) = imageRepository.getImage(id).onEach { resource ->
