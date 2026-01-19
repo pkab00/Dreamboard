@@ -1,4 +1,4 @@
-package com.vbshkn.dreamboard
+package com.vbshkn.dreamboard.presentation
 
 import android.os.Bundle
 import androidx.activity.compose.setContent

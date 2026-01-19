@@ -51,12 +51,14 @@ dependencies {
     testImplementation(libs.junit)
 
     implementation(libs.androidx.appcompat) // AppCompat
-    implementation(libs.insert.koin.koin.android) // Koin
+    implementation(libs.insert.koin.koin.android) //
+
     implementation(libs.retrofit) // Retrofit
     implementation(libs.converter.gson) // Gson Converter for Retrofit
     implementation(libs.okhttp) // OkHttp
     implementation(libs.okhttp3.logging.interceptor) // Logging for OkHttp
-    implementation(libs.coil.compose) // Coil
+    implementation(libs.coil) // Coil
+    implementation(libs.coil.compose) // Coil for Compose
     implementation(libs.coil.network.okhttp) // OkHttp client for Coil
 
     androidTestImplementation(libs.androidx.junit)

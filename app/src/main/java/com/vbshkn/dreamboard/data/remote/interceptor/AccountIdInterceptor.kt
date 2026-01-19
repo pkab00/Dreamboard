@@ -1,4 +1,4 @@
-package com.vbshkn.dreamboard.data.remote
+package com.vbshkn.dreamboard.data.remote.interceptor
 
 import com.vbshkn.dreamboard.BuildConfig
 import okhttp3.Interceptor

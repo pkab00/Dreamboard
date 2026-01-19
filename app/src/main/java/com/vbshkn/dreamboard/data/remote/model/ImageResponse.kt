@@ -1,8 +1,8 @@
-package com.vbshkn.dreamboard.data.remote
+package com.vbshkn.dreamboard.data.remote.model
 
 import com.google.gson.annotations.SerializedName
 
-data class ImageResource(
+data class ImageResponse(
     @SerializedName("id")
     val id: Long,
     @SerializedName("title")

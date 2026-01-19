@@ -3,13 +3,13 @@ package com.vbshkn.dreamboard.util
 import retrofit2.Response
 
 interface SafeApiCaller {
-    suspend fun <T> safeApiCall(call: suspend () -> Response<T>) : NetworkResult<T> {
+    suspend fun <T> safeApiCall(call: suspend () -> Response<T>) : Resource<T> {
         try {
             val result = call()
             if (result.isSuccessful) {
                 val body = result.body()
                 body?.let {
-                    return NetworkResult.Success(body)
+                    return Resource.Success(body)
                 }
                 return errorMessage("Body is empty")
             } else {
@@ -20,6 +20,6 @@ interface SafeApiCaller {
         }
     }
 
-    private fun <T> errorMessage(message: String) : NetworkResult.Error<T> =
-        NetworkResult.Error(data = null, message = "Api call failed: $message")
+    private fun <T> errorMessage(message: String) : Resource.Error<T> =
+        Resource.Error(data = null, message = "Api call failed: $message")
 }
