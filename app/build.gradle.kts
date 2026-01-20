@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    kotlin("plugin.serialization") version "2.3.0"
 }
 
 android {
@@ -52,7 +53,6 @@ dependencies {
 
     implementation(libs.androidx.appcompat) // AppCompat
     implementation(libs.insert.koin.koin.android) // Koin
-
     implementation(libs.retrofit) // Retrofit
     implementation(libs.converter.gson) // Gson Converter for Retrofit
     implementation(libs.okhttp) // OkHttp
@@ -60,8 +60,10 @@ dependencies {
     implementation(libs.coil) // Coil
     implementation(libs.coil.compose) // Coil for Compose
     implementation(libs.coil.network.okhttp) // OkHttp client for Coil
-
     implementation(libs.androidx.compose.material.icons.extended) // Material Icons
+    implementation(libs.androidx.navigation.compose) // Compose Navigation
+    implementation(libs.koin.androidx.compose) // Koin for Compose
+    implementation(libs.kotlinx.serialization.json) // Serialization
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

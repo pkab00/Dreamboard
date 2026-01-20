@@ -3,7 +3,6 @@ package com.vbshkn.dreamboard.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vbshkn.dreamboard.data.repository.ImageRepository
-import com.vbshkn.dreamboard.domain.model.Image
 import com.vbshkn.dreamboard.presentation.state.TestScreenState
 import com.vbshkn.dreamboard.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,9 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
-class TestViewModel(
+class HomeViewModel(
     private val imageRepository: ImageRepository
 ) : ViewModel() {
     private var _imageResults = MutableStateFlow(TestScreenState())

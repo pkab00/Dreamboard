@@ -13,16 +13,12 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.rounded.Nightlight
-import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
@@ -47,89 +43,23 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.vbshkn.dreamboard.domain.model.Image
-import com.vbshkn.dreamboard.presentation.viewmodel.TestViewModel
+import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
 
 @Composable
-fun TestScreen(viewModel: TestViewModel) {
-    Scaffold(
-        topBar = { TopBar() },
-        bottomBar = { BottomBar() },
-        modifier = Modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = MaterialTheme.colorScheme.onBackground
-    ) { paddingValues ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            val state by viewModel.imageResults.collectAsStateWithLifecycle()
-
-            if (state.isLoading) {
-                LoadingScreen()
-            } else if (state.message != null) {
-                ErrorScreen(state.message ?: "Unknown error")
-            } else {
-                SuccessScreen(state.images)
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopBar() {
-    CenterAlignedTopAppBar(
-        modifier = Modifier.padding(vertical = 5.dp),
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-            actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        title = {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleLarge
-            )
-        },
-    )
-}
-
-@Composable
-private fun BottomBar() {
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.primary,
-        contentColor = MaterialTheme.colorScheme.onPrimary
+fun HomeScreen(viewModel: HomeViewModel) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        NavigationBarItem(
-            onClick = {},
-            icon = {
-                Icon(
-                    imageVector = Icons.Filled.Home,
-                    contentDescription = null
-                )
-            },
-            label = {
-                Text(
-                    text = "Home",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    textAlign = TextAlign.Center
-                )
-            },
-            colors = NavigationBarItemDefaults.colors(
-                indicatorColor = MaterialTheme.colorScheme.primaryFixed,
-                unselectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                unselectedTextColor = MaterialTheme.colorScheme.onPrimary,
-                selectedIconColor = MaterialTheme.colorScheme.onPrimaryFixed,
-                selectedTextColor = MaterialTheme.colorScheme.onPrimaryFixed
-            ),
-            selected = false,
-            alwaysShowLabel = true
-        )
+        val state by viewModel.imageResults.collectAsStateWithLifecycle()
+
+        if (state.isLoading) {
+            LoadingScreen()
+        } else if (state.message != null) {
+            ErrorScreen(state.message ?: "Unknown error")
+        } else {
+            SuccessScreen(state.images)
+        }
     }
 }
 

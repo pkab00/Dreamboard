@@ -1,25 +1,21 @@
 package com.vbshkn.dreamboard
 
 import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import coil3.ImageLoader
 import coil3.disk.DiskCache
 import coil3.disk.directory
 import coil3.memory.MemoryCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.vbshkn.dreamboard.data.remote.interceptor.AccountIdInterceptor
 import com.vbshkn.dreamboard.data.remote.interceptor.BearerAuthInterceptor
 import com.vbshkn.dreamboard.data.remote.RemoteImageDataSource
 import com.vbshkn.dreamboard.data.remote.api.VecteezyApi
 import com.vbshkn.dreamboard.data.repository.ImageRepository
-import com.vbshkn.dreamboard.presentation.viewmodel.TestViewModel
+import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
-import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -70,7 +66,7 @@ class KoinManager(private val context: Context) {
     }
 
     val viewModelModule = module {
-        viewModelOf(::TestViewModel)
+        viewModelOf(::HomeViewModel)
     }
 
     fun startFull() = startKoin {
