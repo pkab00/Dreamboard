@@ -5,7 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.vbshkn.dreamboard.presentation.screen.HomeScreen
+import com.vbshkn.dreamboard.presentation.screen.SearchScreen
 import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
+import com.vbshkn.dreamboard.presentation.viewmodel.SearchViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -19,7 +21,8 @@ fun NavHost(navController: NavHostController) {
             HomeScreen(viewModel)
         }
         composable<NavRoute.Search> {
-            // TODO
+            val viewModel = koinViewModel<SearchViewModel>()
+            SearchScreen(viewModel)
         }
     }
 }

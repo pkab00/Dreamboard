@@ -1,29 +1,20 @@
 package com.vbshkn.dreamboard.presentation.screen
 
-import com.vbshkn.dreamboard.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,11 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
@@ -47,101 +34,76 @@ import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
+    val imageMap by viewModel.imageMap.collectAsStateWithLifecycle()
+
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.padding(horizontal = 7.dp)
+    ) {
+        imageMap.forEach { (key, value) ->
+            item {
+                ImageGrid(
+                    title = key.replaceFirstChar { it.uppercaseChar() },
+                    images = value
+                )
+            }
+        }
+        item { Spacer(Modifier.height(10.dp)) }
+    }
+}
+
+@Composable
+fun ImageGrid(title: String, images: List<Image>) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        val state by viewModel.imageResults.collectAsStateWithLifecycle()
-
-        if (state.isLoading) {
-            LoadingScreen()
-        } else if (state.message != null) {
-            ErrorScreen(state.message ?: "Unknown error")
-        } else {
-            SuccessScreen(state.images)
-        }
-    }
-}
-
-@Composable
-private fun SuccessScreen(images: List<Image>) {
-    @Composable
-    fun RemoteImageItem(
-        url: String?,
-        caption: String?
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+        ImageGridCaption(title)
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(1),
+            modifier = Modifier.height(100.dp)
         ) {
-            AsyncImage(
-                model = ImageRequest
-                    .Builder(LocalContext.current)
-                    .memoryCachePolicy(CachePolicy.ENABLED)
-                    .diskCachePolicy(CachePolicy.ENABLED)
-                    .data(url)
-                    .crossfade(true)
-                    .build(),
-                placeholder = ColorPainter(Color.Gray),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                clipToBounds = true,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-            )
-            Spacer(Modifier.height(3.dp))
-            Text(
-                text = caption ?: "",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                lineHeight = 15.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-
-    LazyVerticalStaggeredGrid(
-        columns = StaggeredGridCells.Fixed(2),
-        verticalItemSpacing = 5.dp,
-        horizontalArrangement = Arrangement.spacedBy(7.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 10.dp)
-    ) {
-        items(images, key = { it.id }) { image ->
-            RemoteImageItem(
-                url = image.path,
-                caption = image.title
-            )
+            if (images.isEmpty()) {
+                item { CircularProgressIndicator() }
+            }
+            else {
+                items(images, key = { it.id }) {
+                    ImageGridItem(it.path)
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ErrorScreen(errorMessage: String) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
+private fun ImageGridCaption(caption: String) {
+    Row(
+        horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = errorMessage,
-            color = MaterialTheme.colorScheme.error
+            text = caption,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(7.dp)
         )
     }
 }
 
 @Composable
-private fun LoadingScreen() {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.primary
-        )
-    }
+private fun ImageGridItem(url: String?) {
+    AsyncImage(
+        model = ImageRequest
+            .Builder(LocalContext.current)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .data(url)
+            .crossfade(true)
+            .build(),
+        contentDescription = null,
+        modifier = Modifier.size(100.dp),
+        placeholder = ColorPainter(Color.Gray),
+        contentScale = ContentScale.Crop,
+        clipToBounds = true
+    )
 }
