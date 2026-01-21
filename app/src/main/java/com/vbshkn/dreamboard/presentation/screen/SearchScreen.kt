@@ -1,7 +1,9 @@
 package com.vbshkn.dreamboard.presentation.screen
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,8 +17,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -36,6 +44,8 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.vbshkn.dreamboard.domain.model.Image
 import com.vbshkn.dreamboard.presentation.viewmodel.SearchViewModel
+import com.vbshkn.dreamboard.util.ImageFormat
+import java.util.Locale.getDefault
 
 @Composable
 fun SearchScreen(viewModel: SearchViewModel) {
@@ -43,19 +53,98 @@ fun SearchScreen(viewModel: SearchViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        val state by viewModel.imageResults.collectAsStateWithLifecycle()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val searchingText by viewModel.searchingText.collectAsStateWithLifecycle()
+        val selectedFormat by viewModel.selectedFormat.collectAsStateWithLifecycle()
 
-        if (state.isLoading && state.images.isEmpty()) {
-            LoadingScreen()
-        } else if (state.message != null) {
-            ErrorScreen(state.message ?: "Unknown error")
-        } else {
-            SuccessScreen(
-                images = state.images,
-                loading = state.isLoading,
-                onLoadMore = viewModel::onLoadMore
-            )
+        SearchBar(
+            text = searchingText,
+            supportingText = "Images loaded: ${state.images.size}",
+            onValueChange = { viewModel.onSearchTextChange(it) }
+        )
+        ImageFormatSelectionPanel(
+            selectedElement = selectedFormat,
+            onClick = { viewModel.onFormatSelected(it) }
+        )
+        HorizontalDivider(
+            modifier = Modifier.padding(10.dp)
+        )
+
+        Column(modifier = Modifier.weight(1f)) {
+            if (searchingText.isEmpty()) {
+                EmptySearchResultsPlaceholder()
+            }
+            else if (state.isLoading && state.images.isEmpty()) {
+                LoadingScreen()
+            } else if (state.message != null) {
+                ErrorScreen(state.message ?: "Unknown error")
+            } else {
+                SuccessScreen(
+                    images = state.images,
+                    loading = state.isLoading,
+                    onLoadMore = viewModel::onLoadMore
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun SearchBar(
+    text: String,
+    supportingText: String,
+    onValueChange: (String) -> Unit
+) {
+    TextField(
+        value = text,
+        onValueChange = { onValueChange(it) },
+        placeholder = { Text("Search") },
+        supportingText = { Text(text = supportingText) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+    )
+}
+
+@Composable
+private fun ImageFormatSelectionPanel(
+    selectedElement: ImageFormat,
+    onClick: (ImageFormat) -> Unit
+) {
+    val formats = setOf(
+        ImageFormat.Any, ImageFormat.Png, ImageFormat.Psd, ImageFormat.Svg
+    )
+
+    SingleChoiceSegmentedButtonRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+    ) {
+        formats.forEach { format ->
+            SegmentedButton(
+                selected = selectedElement == format,
+                onClick = { onClick(format) },
+                shape = SegmentedButtonDefaults.baseShape
+            ) {
+                Text(
+                    text = format.javaClass.simpleName.uppercase(getDefault()),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun EmptySearchResultsPlaceholder() {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(
+            text = "Start typing your search request",
+            style = MaterialTheme.typography.titleMedium
+        )
     }
 }
 
@@ -80,7 +169,11 @@ private fun SuccessScreen(
             )
         }
         item(span = StaggeredGridItemSpan.FullLine) {
-            LoadMoreButton(enable = !loading) { onLoadMore() }
+            LoadMoreButton(
+                visible = images.isNotEmpty(),
+                enable = !loading,
+                onClick = { onLoadMore() }
+            )
         }
     }
 }
@@ -124,26 +217,29 @@ fun RemoteImageItem(
 
 @Composable
 private fun LoadMoreButton(
+    visible: Boolean,
     enable: Boolean,
     onClick: () -> Unit
 ) {
-    Button(
-        onClick = { onClick() },
-        enabled = enable,
-        shape = RoundedCornerShape(24.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 20.dp)
-            .height(50.dp)
-    ) {
-        Text(
-            text = "Load more",
-            style = MaterialTheme.typography.bodyLarge
-        )
+    if (visible) {
+        Button(
+            onClick = { onClick() },
+            enabled = enable,
+            shape = RoundedCornerShape(24.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 20.dp)
+                .height(50.dp)
+        ) {
+            Text(
+                text = "Load more",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }
 

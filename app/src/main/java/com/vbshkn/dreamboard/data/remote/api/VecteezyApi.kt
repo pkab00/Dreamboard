@@ -11,8 +11,9 @@ interface VecteezyApi {
     @GET("/v2/%account_id%/resources/{id}")
     suspend fun getImage(@Path("id") id: Long) : Response<ImageResponse>
 
-    @GET("/v2/%account_id%/resources?content_type=photo")
+    @GET("/v2/%account_id%/resources")
     suspend fun getImages(
+        @Query("content_type") contentType: String,
         @Query("term") term: String,
         @Query("page") page: Int,
         @Query("per_page") perPage: Int

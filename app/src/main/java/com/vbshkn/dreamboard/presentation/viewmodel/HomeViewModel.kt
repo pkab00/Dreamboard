@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vbshkn.dreamboard.data.repository.ImageRepository
 import com.vbshkn.dreamboard.domain.model.Image
+import com.vbshkn.dreamboard.util.ImageFormat
 import com.vbshkn.dreamboard.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,19 +32,20 @@ class HomeViewModel(
         }
     }
 
-    fun loadImageRow(term: String) = imageRepository.getImages(term, 1, picturesPerRow)
-        .onEach { resource ->
-            when (resource) {
-                is Resource.Success -> {
-                    resource.body?.let { imageList ->
-                        _imageMap.update { map ->
-                            map.toMutableMap().apply {
-                                this[term] = imageList.images
+    fun loadImageRow(term: String) =
+        imageRepository.getImages(ImageFormat.Any, term, 1, picturesPerRow)
+            .onEach { resource ->
+                when (resource) {
+                    is Resource.Success -> {
+                        resource.body?.let { imageList ->
+                            _imageMap.update { map ->
+                                map.toMutableMap().apply {
+                                    this[term] = imageList.images
+                                }
                             }
                         }
                     }
+                    else -> {}
                 }
-                else -> {}
-            }
-        }.launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
 }

@@ -5,6 +5,7 @@ import com.vbshkn.dreamboard.data.remote.mapper.ImageListMapper.toDomain
 import com.vbshkn.dreamboard.data.remote.mapper.ImageMapper.toDomain
 import com.vbshkn.dreamboard.domain.model.Image
 import com.vbshkn.dreamboard.domain.model.ImageList
+import com.vbshkn.dreamboard.util.ImageFormat
 import com.vbshkn.dreamboard.util.Resource
 import com.vbshkn.dreamboard.util.SafeApiCaller
 import kotlinx.coroutines.flow.Flow
@@ -19,14 +20,21 @@ class ImageRepository(
         emit(callResult.map { it.toDomain() })
     }
 
-    fun getImages(term: String, page: Int, perPage: Int) : Flow<Resource<ImageList>> = flow {
+    fun getImages(
+        imageFormat: ImageFormat,
+        term: String,
+        page: Int,
+        perPage: Int
+    ): Flow<Resource<ImageList>> = flow {
         emit(Resource.Loading())
         val limitation = 10_000
         if (page > limitation || perPage > limitation) {
             emit(Resource.Error(data = null, message = "Parameters cannot exceed $limitation"))
             return@flow
         } else {
-            val callResult = safeApiCall { remoteDataSource.getImages(term, page, perPage) }
+            val callResult = safeApiCall {
+                remoteDataSource.getImages(imageFormat.value, term, page, perPage)
+            }
             emit(callResult.map { it.toDomain() })
         }
     }

@@ -13,8 +13,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -60,14 +62,19 @@ fun ImageGrid(title: String, images: List<Image>) {
         verticalArrangement = Arrangement.Center
     ) {
         ImageGridCaption(title)
+        HorizontalDivider(
+            Modifier.padding(
+                vertical = 10.dp,
+                horizontal = 5.dp
+            )
+        )
         LazyHorizontalGrid(
             rows = GridCells.Fixed(1),
             modifier = Modifier.height(100.dp)
         ) {
             if (images.isEmpty()) {
                 item { CircularProgressIndicator() }
-            }
-            else {
+            } else {
                 items(images, key = { it.id }) {
                     ImageGridItem(it.path)
                 }
@@ -80,12 +87,13 @@ fun ImageGrid(title: String, images: List<Image>) {
 private fun ImageGridCaption(caption: String) {
     Row(
         horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
             text = caption,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(7.dp)
+            modifier = Modifier.padding(horizontal = 7.dp)
         )
     }
 }
