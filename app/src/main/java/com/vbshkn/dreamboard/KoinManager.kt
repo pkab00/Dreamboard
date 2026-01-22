@@ -12,6 +12,7 @@ import com.vbshkn.dreamboard.data.remote.RemoteImageDataSource
 import com.vbshkn.dreamboard.data.remote.api.VecteezyApi
 import com.vbshkn.dreamboard.data.repository.ImageRepository
 import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
+import com.vbshkn.dreamboard.presentation.viewmodel.ImageDetailsViewModel
 import com.vbshkn.dreamboard.presentation.viewmodel.SearchViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -69,6 +70,7 @@ class KoinManager(private val context: Context) {
     val viewModelModule = module {
         viewModelOf(::HomeViewModel)
         viewModelOf(::SearchViewModel)
+        viewModelOf(::ImageDetailsViewModel)
     }
 
     fun startFull() = startKoin {

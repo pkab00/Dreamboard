@@ -26,7 +26,7 @@ class SearchViewModel(
     private var _searchingText = MutableStateFlow("")
     val searchingText = _searchingText.asStateFlow()
 
-    private var _selectedFormat = MutableStateFlow<ImageFormat>(ImageFormat.Any)
+    private var _selectedFormat = MutableStateFlow<ImageFormat>(ImageFormat.Photo)
     val selectedFormat = _selectedFormat.asStateFlow()
 
     init { launchSearchFlow() }
@@ -88,6 +88,14 @@ class SearchViewModel(
             format = _selectedFormat.value,
             term = _searchingText.value,
             page = ++_currentPage.value
+        )
+    }
+
+    fun onRetry() {
+        loadImages(
+            format = _selectedFormat.value,
+            term = _searchingText.value,
+            page = _currentPage.value
         )
     }
 

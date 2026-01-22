@@ -17,11 +17,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun NavBottomBar(navController: NavHostController) {
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    val currentBackStack by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStack?.destination
     val barItems = listOf(
         BarItem(
             title = "Home",
@@ -41,37 +44,42 @@ fun NavBottomBar(navController: NavHostController) {
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary
     ) {
-       barItems.forEachIndexed { index, item ->
-           val selected = selectedIndex == index
-           NavigationBarItem(
-               onClick = {
-                   selectedIndex = index
-                   navController.navigate(item.route)
-               },
-               icon = {
-                   Icon(
-                       imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                       contentDescription = null
-                   )
-               },
-               label = {
-                   Text(
-                       text = item.title,
-                       style = MaterialTheme.typography.labelSmall,
-                       color = MaterialTheme.colorScheme.onPrimary,
-                       textAlign = TextAlign.Center
-                   )
-               },
-               colors = NavigationBarItemDefaults.colors(
-                   indicatorColor = MaterialTheme.colorScheme.primaryContainer,
-                   unselectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                   unselectedTextColor = MaterialTheme.colorScheme.onPrimary,
-                   selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                   selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
-               ),
-               selected = selected,
-               alwaysShowLabel = selected
-           )
-       }
+        barItems.forEach { item ->
+            val selected = currentDestination?.hasRoute(item.route::class) == true
+            NavigationBarItem(
+                onClick = {
+                    navController.navigate(item.route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                icon = {
+                    Icon(
+                        imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                        contentDescription = null
+                    )
+                },
+                label = {
+                    Text(
+                        text = item.title,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        textAlign = TextAlign.Center
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    unselectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                    unselectedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
+                selected = selected,
+                alwaysShowLabel = selected
+            )
+        }
     }
 }

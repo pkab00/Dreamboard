@@ -1,9 +1,9 @@
 package com.vbshkn.dreamboard.presentation.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
@@ -48,7 +47,10 @@ import com.vbshkn.dreamboard.util.ImageFormat
 import java.util.Locale.getDefault
 
 @Composable
-fun SearchScreen(viewModel: SearchViewModel) {
+fun SearchScreen(
+    viewModel: SearchViewModel,
+    onImageClick: (Long) -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -77,12 +79,16 @@ fun SearchScreen(viewModel: SearchViewModel) {
             else if (state.isLoading && state.images.isEmpty()) {
                 LoadingScreen()
             } else if (state.message != null) {
-                ErrorScreen(state.message ?: "Unknown error")
+                ErrorScreen(
+                    errorMessage = state.message ?: "Unknown error",
+                    onRetry = viewModel::onRetry
+                )
             } else {
                 SuccessScreen(
                     images = state.images,
                     loading = state.isLoading,
-                    onLoadMore = viewModel::onLoadMore
+                    onImageClick = onImageClick,
+                    onLoadMore = viewModel::onLoadMore,
                 )
             }
         }
@@ -112,7 +118,7 @@ private fun ImageFormatSelectionPanel(
     onClick: (ImageFormat) -> Unit
 ) {
     val formats = setOf(
-        ImageFormat.Any, ImageFormat.Png, ImageFormat.Psd, ImageFormat.Svg
+        ImageFormat.Photo, ImageFormat.Png, ImageFormat.Psd, ImageFormat.Svg
     )
 
     SingleChoiceSegmentedButtonRow(
@@ -152,6 +158,7 @@ private fun EmptySearchResultsPlaceholder() {
 private fun SuccessScreen(
     images: List<Image>,
     loading: Boolean,
+    onImageClick: (Long) -> Unit,
     onLoadMore: () -> Unit
 ) {
     LazyVerticalStaggeredGrid(
@@ -165,7 +172,8 @@ private fun SuccessScreen(
         items(images, key = { it.id }) { image ->
             RemoteImageItem(
                 url = image.path,
-                caption = image.title
+                caption = image.title,
+                onClick = { onImageClick(image.id) }
             )
         }
         item(span = StaggeredGridItemSpan.FullLine) {
@@ -181,7 +189,8 @@ private fun SuccessScreen(
 @Composable
 fun RemoteImageItem(
     url: String?,
-    caption: String?
+    caption: String?,
+    onClick: () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -201,6 +210,7 @@ fun RemoteImageItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
+                .clickable(onClick = { onClick() })
         )
         Spacer(Modifier.height(3.dp))
         Text(
@@ -244,16 +254,29 @@ private fun LoadMoreButton(
 }
 
 @Composable
-private fun ErrorScreen(errorMessage: String) {
+private fun ErrorScreen(
+    errorMessage: String,
+    onRetry: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp)
     ) {
         Text(
-            text = errorMessage,
-            color = MaterialTheme.colorScheme.error
+            text = "Something went wrong:\n$errorMessage",
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center
         )
+        Spacer(Modifier.height(7.dp))
+        Button(
+            onClick = { onRetry() },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Retry")
+        }
     }
 }
 

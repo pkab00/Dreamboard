@@ -5,8 +5,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.vbshkn.dreamboard.presentation.screen.HomeScreen
+import com.vbshkn.dreamboard.presentation.screen.ImageDetailsScreen
 import com.vbshkn.dreamboard.presentation.screen.SearchScreen
 import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
+import com.vbshkn.dreamboard.presentation.viewmodel.ImageDetailsViewModel
 import com.vbshkn.dreamboard.presentation.viewmodel.SearchViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -17,12 +19,16 @@ fun NavHost(navController: NavHostController) {
         startDestination = NavRoute.Home
     ) {
         composable<NavRoute.Home> {
-            val viewModel = koinViewModel<HomeViewModel>()
-            HomeScreen(viewModel)
+            HomeScreen(viewModel = koinViewModel<HomeViewModel>())
         }
         composable<NavRoute.Search> {
-            val viewModel = koinViewModel<SearchViewModel>()
-            SearchScreen(viewModel)
+            SearchScreen(
+                viewModel = koinViewModel<SearchViewModel>(),
+                onImageClick = { navController.navigate(NavRoute.ImageDetails(it)) }
+            )
+        }
+        composable<NavRoute.ImageDetails> {
+            ImageDetailsScreen(viewModel = koinViewModel<ImageDetailsViewModel>())
         }
     }
 }
