@@ -3,8 +3,12 @@ package com.vbshkn.dreamboard.presentation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -34,7 +38,12 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
     }
 
     Scaffold(
-        topBar = { TopBar() },
+        topBar = {
+            TopBar(
+                showNavigation = !showNavBar,
+                onNavigate = { navController.popBackStack() }
+            )
+        },
         bottomBar = { if (showNavBar) NavBottomBar(navController) },
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -48,7 +57,10 @@ fun MainScreen(navController: NavHostController = rememberNavController()) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopBar() {
+private fun TopBar(
+    showNavigation: Boolean,
+    onNavigate: () -> Unit
+) {
     CenterAlignedTopAppBar(
         modifier = Modifier.padding(vertical = 5.dp),
         colors = TopAppBarDefaults.topAppBarColors(
@@ -57,11 +69,23 @@ private fun TopBar() {
             navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
             actionIconContentColor = MaterialTheme.colorScheme.onPrimary
         ),
+        navigationIcon = {
+            if (showNavigation) {
+                IconButton(onClick = onNavigate) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBackIosNew,
+                        contentDescription = null
+                    )
+                }
+            }
+        },
         title = {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleLarge
-            )
+            if (!showNavigation) {
+                Text(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
         }
     )
 }
