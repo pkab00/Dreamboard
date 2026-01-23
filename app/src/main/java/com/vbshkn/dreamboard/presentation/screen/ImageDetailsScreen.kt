@@ -52,7 +52,7 @@ fun ImageDetailsScreen(viewModel: ImageDetailsViewModel) {
             SuccessContent(
                 image = state.image!!,
                 onDownload = viewModel::downloadImageToDevice,
-                onShare = { TODO() }
+                onShare = viewModel::shareImage
             )
         }
     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.vbshkn.dreamboard.data.repository.ImageRepository
 import com.vbshkn.dreamboard.data.service.ImageDownloadService
+import com.vbshkn.dreamboard.data.service.ShareDataService
 import com.vbshkn.dreamboard.domain.model.Image
 import com.vbshkn.dreamboard.presentation.navigation.NavRoute
 import com.vbshkn.dreamboard.presentation.state.ImageDetailsScreenState
@@ -20,7 +21,8 @@ import kotlinx.coroutines.launch
 class ImageDetailsViewModel(
     savedStateHandle: SavedStateHandle,
     private val imageRepository: ImageRepository,
-    private val imageDownloadService: ImageDownloadService
+    private val imageDownloadService: ImageDownloadService,
+    private val shareDataService: ShareDataService
 ) : ViewModel() {
     private val args = savedStateHandle.toRoute<NavRoute.ImageDetails>()
     val id = args.id
@@ -55,5 +57,9 @@ class ImageDetailsViewModel(
 
     fun downloadImageToDevice(image: Image) = viewModelScope.launch {
         imageDownloadService.downloadAsJpeg(image)
+    }
+
+    fun shareImage(image: Image) {
+        shareDataService.shareString(image.path!!, "Share the link")
     }
 }
