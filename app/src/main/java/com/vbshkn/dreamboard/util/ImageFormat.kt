@@ -1,8 +1,18 @@
 package com.vbshkn.dreamboard.util
 
-sealed class ImageFormat(val value: String) {
-    object Photo : ImageFormat("photo")
-    object Png : ImageFormat("png")
-    object Psd : ImageFormat("psd")
-    object Svg : ImageFormat("svg")
+enum class ImageFormat(
+    val apiName: String,
+    val formatSuffix: String,
+    val mimeType: String
+) {
+    PHOTO("photo", "jpg","image/jpeg"),
+    PNG("png", "png", "image/png"),
+    PSD("psd", "psd", "application/photoshop"),
+    SVG("vector", "svg", "image/svg+xml");
+
+    companion object {
+        fun fromString(name: String?) = entries.find {
+            it.apiName == name
+        } ?: PHOTO
+    }
 }

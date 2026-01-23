@@ -26,7 +26,7 @@ class SearchViewModel(
     private var _searchingText = MutableStateFlow("")
     val searchingText = _searchingText.asStateFlow()
 
-    private var _selectedFormat = MutableStateFlow<ImageFormat>(ImageFormat.Photo)
+    private var _selectedFormat = MutableStateFlow<ImageFormat>(ImageFormat.PHOTO)
     val selectedFormat = _selectedFormat.asStateFlow()
 
     init { launchSearchFlow() }

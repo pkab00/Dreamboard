@@ -44,7 +44,6 @@ import coil3.request.crossfade
 import com.vbshkn.dreamboard.domain.model.Image
 import com.vbshkn.dreamboard.presentation.viewmodel.SearchViewModel
 import com.vbshkn.dreamboard.util.ImageFormat
-import java.util.Locale.getDefault
 
 @Composable
 fun SearchScreen(
@@ -117,9 +116,7 @@ private fun ImageFormatSelectionPanel(
     selectedElement: ImageFormat,
     onClick: (ImageFormat) -> Unit
 ) {
-    val formats = setOf(
-        ImageFormat.Photo, ImageFormat.Png, ImageFormat.Psd, ImageFormat.Svg
-    )
+    val formats = ImageFormat.entries
 
     SingleChoiceSegmentedButtonRow(
         modifier = Modifier
@@ -133,7 +130,7 @@ private fun ImageFormatSelectionPanel(
                 shape = SegmentedButtonDefaults.baseShape
             ) {
                 Text(
-                    text = format.javaClass.simpleName.uppercase(getDefault()),
+                    text = format.apiName.uppercase(),
                     style = MaterialTheme.typography.bodySmall
                 )
             }

@@ -49,7 +49,11 @@ fun ImageDetailsScreen(viewModel: ImageDetailsViewModel) {
         } else if (state.message != null) {
             ErrorContent(message = state.message)
         } else {
-            SuccessContent(image = state.image!!)
+            SuccessContent(
+                image = state.image!!,
+                onDownload = viewModel::downloadImageToDevice,
+                onShare = { TODO() }
+            )
         }
     }
 }
@@ -82,8 +86,8 @@ private fun ImageItem(url: String?) {
 @Composable
 fun DetailsPanel(
     image: Image,
-    onDownload: (String?) -> Unit,
-    onShare: (String?) -> Unit,
+    onDownload: (Image) -> Unit,
+    onShare: (Image) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -104,12 +108,12 @@ fun DetailsPanel(
             modifier = Modifier.fillMaxWidth()
         ) {
             Button(
-                onClick = { onDownload(image.path) },
+                onClick = { onDownload(image) },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Download")
             }
-            Button(onClick = { onShare(image.path) }) {
+            Button(onClick = { onShare(image) }) {
                 androidx.compose.foundation.Image(
                     imageVector = Icons.Filled.IosShare,
                     contentDescription = null
@@ -120,7 +124,11 @@ fun DetailsPanel(
 }
 
 @Composable
-fun SuccessContent(image: Image) {
+fun SuccessContent(
+    image: Image,
+    onDownload: (Image) -> Unit,
+    onShare: (Image) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -129,8 +137,8 @@ fun SuccessContent(image: Image) {
         ImageItem(image.path)
         DetailsPanel(
             image = image,
-            onDownload = { TODO() },
-            onShare = { TODO() },
+            onDownload = onDownload,
+            onShare = onShare,
             modifier = Modifier.weight(1f)
         )
     }

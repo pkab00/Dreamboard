@@ -33,7 +33,7 @@ class HomeViewModel(
     }
 
     fun loadImageRow(term: String) =
-        imageRepository.getImages(ImageFormat.Photo, term, 1, picturesPerRow)
+        imageRepository.getImages(ImageFormat.PHOTO, term, 1, picturesPerRow)
             .onEach { resource ->
                 when (resource) {
                     is Resource.Success -> {

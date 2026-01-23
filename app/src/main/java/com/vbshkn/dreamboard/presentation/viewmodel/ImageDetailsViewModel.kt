@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.vbshkn.dreamboard.data.repository.ImageRepository
+import com.vbshkn.dreamboard.data.service.ImageDownloadService
+import com.vbshkn.dreamboard.domain.model.Image
 import com.vbshkn.dreamboard.presentation.navigation.NavRoute
 import com.vbshkn.dreamboard.presentation.state.ImageDetailsScreenState
 import com.vbshkn.dreamboard.util.Resource
@@ -13,10 +15,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class ImageDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    private val imageRepository: ImageRepository
+    private val imageRepository: ImageRepository,
+    private val imageDownloadService: ImageDownloadService
 ) : ViewModel() {
     private val args = savedStateHandle.toRoute<NavRoute.ImageDetails>()
     val id = args.id
@@ -48,4 +52,8 @@ class ImageDetailsViewModel(
             }
         }
     }.launchIn(viewModelScope)
+
+    fun downloadImageToDevice(image: Image) = viewModelScope.launch {
+        imageDownloadService.downloadAsJpeg(image)
+    }
 }

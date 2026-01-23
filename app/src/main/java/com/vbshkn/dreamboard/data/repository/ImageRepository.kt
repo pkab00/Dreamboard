@@ -33,7 +33,7 @@ class ImageRepository(
             return@flow
         } else {
             val callResult = safeApiCall {
-                remoteDataSource.getImages(imageFormat.value, term, page, perPage)
+                remoteDataSource.getImages(imageFormat.apiName, term, page, perPage)
             }
             emit(callResult.map { it.toDomain() })
         }

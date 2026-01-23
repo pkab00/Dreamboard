@@ -11,6 +11,7 @@ import com.vbshkn.dreamboard.data.remote.interceptor.BearerAuthInterceptor
 import com.vbshkn.dreamboard.data.remote.RemoteImageDataSource
 import com.vbshkn.dreamboard.data.remote.api.VecteezyApi
 import com.vbshkn.dreamboard.data.repository.ImageRepository
+import com.vbshkn.dreamboard.data.service.ImageDownloadService
 import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
 import com.vbshkn.dreamboard.presentation.viewmodel.ImageDetailsViewModel
 import com.vbshkn.dreamboard.presentation.viewmodel.SearchViewModel
@@ -67,6 +68,10 @@ class KoinManager(private val context: Context) {
         single<ImageRepository> { ImageRepository(get()) }
     }
 
+    val serviceModule = module {
+        single<ImageDownloadService>{ ImageDownloadService(androidContext()) }
+    }
+
     val viewModelModule = module {
         viewModelOf(::HomeViewModel)
         viewModelOf(::SearchViewModel)
@@ -79,6 +84,7 @@ class KoinManager(private val context: Context) {
             listOf(
                 remoteModule,
                 repositoryModule,
+                serviceModule,
                 viewModelModule
             )
         )
