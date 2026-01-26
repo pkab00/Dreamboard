@@ -14,7 +14,6 @@ import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +37,8 @@ import com.vbshkn.dreamboard.domain.model.Image
 @Composable
 fun ImageDetailsScreen(viewModel: ImageDetailsViewModel) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val memoryCachePolicy by viewModel.memoryCachePolicy.collectAsStateWithLifecycle()
+    val discCachePolicy by viewModel.discCachePolicy.collectAsStateWithLifecycle()
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,6 +52,8 @@ fun ImageDetailsScreen(viewModel: ImageDetailsViewModel) {
         } else {
             SuccessContent(
                 image = state.image!!,
+                memoryCachePolicy = memoryCachePolicy,
+                discCachePolicy = discCachePolicy,
                 onDownload = viewModel::downloadImageToDevice,
                 onShare = viewModel::shareImage
             )
@@ -59,15 +62,19 @@ fun ImageDetailsScreen(viewModel: ImageDetailsViewModel) {
 }
 
 @Composable
-private fun ImageItem(url: String?) {
+private fun ImageItem(
+    url: String?,
+    memoryCachePolicy: CachePolicy,
+    discCachePolicy: CachePolicy
+) {
     val screenHeight = LocalWindowInfo.current.containerDpSize.height
     val maxImageHeight = screenHeight * 0.5f
     val minImageHeight = screenHeight * 0.2f
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(url)
-            .diskCachePolicy(CachePolicy.ENABLED)
-            .memoryCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(discCachePolicy)
+            .memoryCachePolicy(memoryCachePolicy)
             .crossfade(true)
             .build(),
         contentDescription = null,
@@ -126,6 +133,8 @@ fun DetailsPanel(
 @Composable
 fun SuccessContent(
     image: Image,
+    memoryCachePolicy: CachePolicy,
+    discCachePolicy: CachePolicy,
     onDownload: (Image) -> Unit,
     onShare: (Image) -> Unit
 ) {
@@ -134,7 +143,11 @@ fun SuccessContent(
             .fillMaxSize()
             .padding(horizontal = 5.dp)
     ) {
-        ImageItem(image.path)
+        ImageItem(
+            url = image.path,
+            memoryCachePolicy = memoryCachePolicy,
+            discCachePolicy = discCachePolicy
+        )
         DetailsPanel(
             image = image,
             onDownload = onDownload,

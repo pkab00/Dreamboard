@@ -2,22 +2,28 @@ package com.vbshkn.dreamboard.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil3.request.CachePolicy
 import com.vbshkn.dreamboard.data.repository.ImageRepository
+import com.vbshkn.dreamboard.data.repository.LocalSettingsRepository
 import com.vbshkn.dreamboard.presentation.state.SearchScreenState
 import com.vbshkn.dreamboard.util.ImageFormat
 import com.vbshkn.dreamboard.util.Resource
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 @OptIn(FlowPreview::class)
 class SearchViewModel(
-    private val imageRepository: ImageRepository
+    private val imageRepository: ImageRepository,
+    private val localSettingsRepository: LocalSettingsRepository
 ) : ViewModel() {
     private var _state = MutableStateFlow(SearchScreenState())
     val state = _state.asStateFlow()
@@ -26,8 +32,29 @@ class SearchViewModel(
     private var _searchingText = MutableStateFlow("")
     val searchingText = _searchingText.asStateFlow()
 
-    private var _selectedFormat = MutableStateFlow<ImageFormat>(ImageFormat.PHOTO)
+    private var _selectedFormat = MutableStateFlow(ImageFormat.PHOTO)
     val selectedFormat = _selectedFormat.asStateFlow()
+
+    val memoryCachePolicy = localSettingsRepository.getSettings()
+        .map { settingsState ->
+            if(settingsState.memoryCache) CachePolicy.ENABLED
+            else CachePolicy.DISABLED
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CachePolicy.DISABLED
+        )
+    val discCachePolicy = localSettingsRepository.getSettings()
+        .map { settingsState ->
+            if (settingsState.discCache) CachePolicy.ENABLED
+            else CachePolicy.DISABLED
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = CachePolicy.DISABLED
+        )
 
     init { launchSearchFlow() }
 

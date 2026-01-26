@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.vbshkn.dreamboard.presentation.screen.HomeScreen
 import com.vbshkn.dreamboard.presentation.screen.ImageDetailsScreen
 import com.vbshkn.dreamboard.presentation.screen.SearchScreen
+import com.vbshkn.dreamboard.presentation.screen.SettingsScreen
 import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
 import com.vbshkn.dreamboard.presentation.viewmodel.ImageDetailsViewModel
 import com.vbshkn.dreamboard.presentation.viewmodel.SearchViewModel
@@ -19,16 +20,19 @@ fun NavHost(navController: NavHostController) {
         startDestination = NavRoute.Home
     ) {
         composable<NavRoute.Home> {
-            HomeScreen(viewModel = koinViewModel<HomeViewModel>())
+            HomeScreen(viewModel = koinViewModel())
         }
         composable<NavRoute.Search> {
             SearchScreen(
-                viewModel = koinViewModel<SearchViewModel>(),
+                viewModel = koinViewModel(),
                 onImageClick = { navController.navigate(NavRoute.ImageDetails(it)) }
             )
         }
+        composable<NavRoute.Settings> {
+            SettingsScreen(viewModel = koinViewModel())
+        }
         composable<NavRoute.ImageDetails> {
-            ImageDetailsScreen(viewModel = koinViewModel<ImageDetailsViewModel>())
+            ImageDetailsScreen(viewModel = koinViewModel())
         }
     }
 }

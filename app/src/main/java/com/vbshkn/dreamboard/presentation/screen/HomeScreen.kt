@@ -37,6 +37,8 @@ import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
 @Composable
 fun HomeScreen(viewModel: HomeViewModel) {
     val imageMap by viewModel.imageMap.collectAsStateWithLifecycle()
+    val memoryCachePolicy by viewModel.memoryCachePolicy.collectAsStateWithLifecycle()
+    val discCachePolicy by viewModel.discCachePolicy.collectAsStateWithLifecycle()
 
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -47,7 +49,9 @@ fun HomeScreen(viewModel: HomeViewModel) {
             item {
                 ImageGrid(
                     title = key.replaceFirstChar { it.uppercaseChar() },
-                    images = value
+                    images = value,
+                    memoryCachePolicy = memoryCachePolicy,
+                    discCachePolicy = discCachePolicy
                 )
             }
         }
@@ -56,7 +60,12 @@ fun HomeScreen(viewModel: HomeViewModel) {
 }
 
 @Composable
-fun ImageGrid(title: String, images: List<Image>) {
+fun ImageGrid(
+    title: String,
+    images: List<Image>,
+    memoryCachePolicy: CachePolicy,
+    discCachePolicy: CachePolicy
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
@@ -76,7 +85,11 @@ fun ImageGrid(title: String, images: List<Image>) {
                 item { CircularProgressIndicator() }
             } else {
                 items(images, key = { it.id }) {
-                    ImageGridItem(it.path)
+                    ImageGridItem(
+                        url = it.path,
+                        memoryCachePolicy = memoryCachePolicy,
+                        discCachePolicy = discCachePolicy
+                    )
                 }
             }
         }
@@ -99,7 +112,11 @@ private fun ImageGridCaption(caption: String) {
 }
 
 @Composable
-private fun ImageGridItem(url: String?) {
+private fun ImageGridItem(
+    url: String?,
+    memoryCachePolicy: CachePolicy,
+    discCachePolicy: CachePolicy
+) {
     AsyncImage(
         model = ImageRequest
             .Builder(LocalContext.current)

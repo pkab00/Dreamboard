@@ -3,8 +3,10 @@ package com.vbshkn.dreamboard.presentation.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ImageSearch
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.ImageSearch
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -37,6 +39,12 @@ fun NavBottomBar(navController: NavHostController) {
             selectedIcon = Icons.Filled.ImageSearch,
             unselectedIcon = Icons.Outlined.ImageSearch,
             route = NavRoute.Search
+        ),
+        BarItem(
+            title = "Settings",
+            selectedIcon = Icons.Filled.Settings,
+            unselectedIcon = Icons.Outlined.Settings,
+            route = NavRoute.Settings
         )
     )
 

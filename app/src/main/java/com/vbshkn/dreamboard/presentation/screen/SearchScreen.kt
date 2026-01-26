@@ -57,6 +57,8 @@ fun SearchScreen(
         val state by viewModel.state.collectAsStateWithLifecycle()
         val searchingText by viewModel.searchingText.collectAsStateWithLifecycle()
         val selectedFormat by viewModel.selectedFormat.collectAsStateWithLifecycle()
+        val memoryCachePolicy by viewModel.memoryCachePolicy.collectAsStateWithLifecycle()
+        val discCachePolicy by viewModel.discCachePolicy.collectAsStateWithLifecycle()
 
         SearchBar(
             text = searchingText,
@@ -87,7 +89,9 @@ fun SearchScreen(
                     images = state.images,
                     loading = state.isLoading,
                     onImageClick = onImageClick,
-                    onLoadMore = viewModel::onLoadMore,
+                    memoryCachePolicy = memoryCachePolicy,
+                    discCachePolicy = discCachePolicy,
+                    onLoadMore = viewModel::onLoadMore
                 )
             }
         }
@@ -155,6 +159,8 @@ private fun EmptySearchResultsPlaceholder() {
 private fun SuccessScreen(
     images: List<Image>,
     loading: Boolean,
+    memoryCachePolicy: CachePolicy,
+    discCachePolicy: CachePolicy,
     onImageClick: (Long) -> Unit,
     onLoadMore: () -> Unit
 ) {
@@ -170,6 +176,8 @@ private fun SuccessScreen(
             RemoteImageItem(
                 url = image.path,
                 caption = image.title,
+                memoryCachePolicy = memoryCachePolicy,
+                discCachePolicy = discCachePolicy,
                 onClick = { onImageClick(image.id) }
             )
         }
@@ -187,7 +195,9 @@ private fun SuccessScreen(
 fun RemoteImageItem(
     url: String?,
     caption: String?,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    memoryCachePolicy: CachePolicy,
+    discCachePolicy: CachePolicy
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -195,8 +205,8 @@ fun RemoteImageItem(
         AsyncImage(
             model = ImageRequest
                 .Builder(LocalContext.current)
-                .memoryCachePolicy(CachePolicy.ENABLED)
-                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(memoryCachePolicy)
+                .diskCachePolicy(discCachePolicy)
                 .data(url)
                 .crossfade(true)
                 .build(),
