@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -50,41 +52,47 @@ fun SearchScreen(
     viewModel: SearchViewModel,
     onImageClick: (Long) -> Unit
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val settings by viewModel.localSettings.collectAsStateWithLifecycle()
+    val searchState by viewModel.searchState.collectAsStateWithLifecycle()
+
+    val memoryCachePolicy = if (settings.memoryCache) CachePolicy.ENABLED else CachePolicy.DISABLED
+    val discCachePolicy = if (settings.discCache) CachePolicy.ENABLED else CachePolicy.DISABLED
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(7.dp),
+        modifier = Modifier.padding(horizontal = 10.dp)
     ) {
-        val state by viewModel.state.collectAsStateWithLifecycle()
-        val searchingText by viewModel.searchingText.collectAsStateWithLifecycle()
-        val selectedFormat by viewModel.selectedFormat.collectAsStateWithLifecycle()
-        val memoryCachePolicy by viewModel.memoryCachePolicy.collectAsStateWithLifecycle()
-        val discCachePolicy by viewModel.discCachePolicy.collectAsStateWithLifecycle()
-
         SearchBar(
-            text = searchingText,
+            text = searchState.searchingText,
             supportingText = "Images loaded: ${state.images.size}",
             onValueChange = { viewModel.onSearchTextChange(it) }
         )
         ImageFormatSelectionPanel(
-            selectedElement = selectedFormat,
+            selectedElement = searchState.selectedFormat,
             onClick = { viewModel.onFormatSelected(it) }
         )
-        HorizontalDivider(
-            modifier = Modifier.padding(10.dp)
+        DisableAiSwitch(
+            isSwitched = searchState.disableAi,
+            onSwitch = viewModel::onAiModeChanged
         )
+        HorizontalDivider()
 
         Column(modifier = Modifier.weight(1f)) {
-            if (searchingText.isEmpty()) {
+            if (searchState.searchingText.isEmpty()) {
                 EmptySearchResultsPlaceholder()
             }
             else if (state.isLoading && state.images.isEmpty()) {
                 LoadingScreen()
-            } else if (state.message != null) {
+            }
+            else if (state.message != null) {
                 ErrorScreen(
                     errorMessage = state.message ?: "Unknown error",
                     onRetry = viewModel::onRetry
                 )
-            } else {
+            }
+            else {
                 SuccessScreen(
                     images = state.images,
                     loading = state.isLoading,
@@ -109,9 +117,7 @@ private fun SearchBar(
         onValueChange = { onValueChange(it) },
         placeholder = { Text("Search") },
         supportingText = { Text(text = supportingText) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(10.dp)
+        modifier = Modifier.fillMaxWidth()
     )
 }
 
@@ -123,9 +129,7 @@ private fun ImageFormatSelectionPanel(
     val formats = ImageFormat.entries
 
     SingleChoiceSegmentedButtonRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
         formats.forEach { format ->
             SegmentedButton(
@@ -139,6 +143,27 @@ private fun ImageFormatSelectionPanel(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun DisableAiSwitch(
+    isSwitched: Boolean,
+    onSwitch: (Boolean) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Disable AI-generated images",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Switch(
+            checked = isSwitched,
+            onCheckedChange = onSwitch
+        )
     }
 }
 
@@ -168,9 +193,7 @@ private fun SuccessScreen(
         columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 5.dp,
         horizontalArrangement = Arrangement.spacedBy(7.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 7.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
         items(images, key = { it.id }) { image ->
             RemoteImageItem(

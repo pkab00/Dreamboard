@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -27,16 +28,18 @@ import com.vbshkn.dreamboard.R
 import com.vbshkn.dreamboard.presentation.navigation.NavBottomBar
 import com.vbshkn.dreamboard.presentation.navigation.NavHost
 import com.vbshkn.dreamboard.presentation.navigation.NavRoute
+import com.vbshkn.dreamboard.presentation.theme.DreamboardTheme
 
 @Composable
-fun MainScreen(navController: NavHostController = rememberNavController()) {
+fun MainScreen(
+    navController: NavHostController = rememberNavController()
+) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = backStackEntry?.destination
 
     val showNavBar = NavRoute.topLevelRoutes.any { routeClass ->
         currentDestination?.hasRoute(routeClass) == true
     }
-
     Scaffold(
         topBar = {
             TopBar(

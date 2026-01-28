@@ -60,7 +60,7 @@ class HomeViewModel(
     }
 
     fun loadImageRow(term: String) =
-        imageRepository.getImages(ImageFormat.PHOTO, term, 1, picturesPerRow)
+        imageRepository.getImages(ImageFormat.PHOTO, null, term, 1, picturesPerRow)
             .onEach { resource ->
                 when (resource) {
                     is Resource.Success -> {
@@ -72,7 +72,6 @@ class HomeViewModel(
                             }
                         }
                     }
-
                     else -> {}
                 }
             }.launchIn(viewModelScope)

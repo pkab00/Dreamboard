@@ -35,4 +35,10 @@ class SettingsViewModel(
             settingsRepository.updateDarkTheme(newValue)
         }
     }
+
+    fun onSwitchDisableAi(newValue: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.updateDisableAi(newValue)
+        }
+    }
 }

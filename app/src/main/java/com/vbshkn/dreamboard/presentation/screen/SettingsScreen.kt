@@ -1,6 +1,5 @@
 package com.vbshkn.dreamboard.presentation.screen
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vbshkn.dreamboard.presentation.viewmodel.SettingsViewModel
@@ -46,6 +44,15 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     text = "Enable disc caching",
                     isSwitched = state.discCache,
                     onSwitchChanged = viewModel::onSwitchDickCaching
+                )
+            }
+        }
+        item {
+            Section("Searching") {
+                SwitchSectionItem(
+                    text = "Disable AI works by default (experimental)",
+                    isSwitched = state.disableAi,
+                    onSwitchChanged = viewModel::onSwitchDisableAi
                 )
             }
         }
@@ -95,7 +102,9 @@ fun SwitchSectionItem(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            maxLines = 2,
+            modifier = Modifier.weight(1f)
         )
         Switch(
             checked = isSwitched,

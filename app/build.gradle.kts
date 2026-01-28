@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.koin.androidx.compose) // Koin for Compose
     implementation(libs.kotlinx.serialization.json) // Serialization
     implementation (libs.androidx.datastore.preferences) // Jetpack DatsStore
+    implementation(libs.core.splashscreen) // SplashScreen
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

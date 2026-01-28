@@ -2,10 +2,11 @@ package com.vbshkn.dreamboard.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil3.request.CachePolicy
+import com.vbshkn.dreamboard.data.local.model.LocalSettingsState
 import com.vbshkn.dreamboard.data.repository.ImageRepository
 import com.vbshkn.dreamboard.data.repository.LocalSettingsRepository
-import com.vbshkn.dreamboard.presentation.state.SearchScreenState
+import com.vbshkn.dreamboard.presentation.state.SearchScreenUIState
+import com.vbshkn.dreamboard.presentation.state.SearchState
 import com.vbshkn.dreamboard.util.ImageFormat
 import com.vbshkn.dreamboard.util.Resource
 import kotlinx.coroutines.FlowPreview
@@ -25,57 +26,74 @@ class SearchViewModel(
     private val imageRepository: ImageRepository,
     private val localSettingsRepository: LocalSettingsRepository
 ) : ViewModel() {
-    private var _state = MutableStateFlow(SearchScreenState())
+    private var _state = MutableStateFlow(SearchScreenUIState())
     val state = _state.asStateFlow()
 
-    private var _currentPage = MutableStateFlow(1)
+    private val _localSettings = localSettingsRepository.getSettings()
     private var _searchingText = MutableStateFlow("")
-    val searchingText = _searchingText.asStateFlow()
-
     private var _selectedFormat = MutableStateFlow(ImageFormat.PHOTO)
-    val selectedFormat = _selectedFormat.asStateFlow()
+    private var _currentPage = MutableStateFlow(1)
+    private var _disableAi = MutableStateFlow(false)
 
-    val memoryCachePolicy = localSettingsRepository.getSettings()
-        .map { settingsState ->
-            if(settingsState.memoryCache) CachePolicy.ENABLED
-            else CachePolicy.DISABLED
-        }
+    val localSettings = _localSettings
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CachePolicy.DISABLED
+            initialValue = LocalSettingsState.getDefaultState()
         )
-    val discCachePolicy = localSettingsRepository.getSettings()
-        .map { settingsState ->
-            if (settingsState.discCache) CachePolicy.ENABLED
-            else CachePolicy.DISABLED
-        }
+
+    val searchState = combine(
+        _searchingText,
+        _currentPage,
+        _selectedFormat,
+        _disableAi,
+    ) { text, page, format, disableAi ->
+        SearchState(
+            searchingText = text,
+            currentPage = page,
+            selectedFormat = format,
+            disableAi = disableAi
+        )
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = CachePolicy.DISABLED
+            initialValue = SearchState()
         )
 
-    init { launchSearchFlow() }
+    init {
+        observeDisableAiGlobal()
+        launchSearchFlow()
+    }
 
-    private fun launchSearchFlow() = _searchingText
+    private fun observeDisableAiGlobal() = _localSettings
+        .map { it.disableAi }
+        .onEach { _disableAi.value = it }
+        .launchIn(viewModelScope)
+
+    private fun launchSearchFlow() = combine(
+        _searchingText.debounce { 500L },
+        _selectedFormat,
+        _disableAi
+    ) { text, format, disableAi ->
+        resetCurrentPage()
+        resetImageList()
+        if (text.isNotEmpty()) loadImages(
+            format = format,
+            aiGenerated = if (disableAi) false else null,
+            term = text
+        )
+    }
         .debounce { 500L }
-        .combine(_selectedFormat) { text, format ->
-            resetCurrentPage()
-            resetImageList()
-            if (text.isNotEmpty()) loadImages(
-                format = format,
-                term = text
-            )
-        }
         .launchIn(viewModelScope)
 
     private fun loadImages(
         format: ImageFormat,
+        aiGenerated: Boolean?,
         term: String,
         page: Int = _currentPage.value,
         perPage: Int = 50
-    ) = imageRepository.getImages(format, term, page, perPage).onEach { resource ->
+    ) = imageRepository.getImages(format, aiGenerated, term, page, perPage).onEach { resource ->
         when (resource) {
             is Resource.Success -> _state.update { screenState ->
                 screenState.copy(
@@ -110,9 +128,12 @@ class SearchViewModel(
 
     private fun resetCurrentPage() = _currentPage.update { 1 }
 
+    fun onAiModeChanged(newValue: Boolean) = _disableAi.update { newValue }
+
     fun onLoadMore() {
         loadImages(
             format = _selectedFormat.value,
+            aiGenerated = if (_disableAi.value) false else null,
             term = _searchingText.value,
             page = ++_currentPage.value
         )
@@ -121,6 +142,7 @@ class SearchViewModel(
     fun onRetry() {
         loadImages(
             format = _selectedFormat.value,
+            aiGenerated = if (_disableAi.value) false else null,
             term = _searchingText.value,
             page = _currentPage.value
         )

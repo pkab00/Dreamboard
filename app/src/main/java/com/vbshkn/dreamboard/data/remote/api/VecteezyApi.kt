@@ -14,6 +14,7 @@ interface VecteezyApi {
     @GET("/v2/%account_id%/resources")
     suspend fun getImages(
         @Query("content_type") contentType: String,
+        @Query("ai_generated") aiGenerated: Boolean?,
         @Query("term") term: String,
         @Query("page") page: Int,
         @Query("per_page") perPage: Int

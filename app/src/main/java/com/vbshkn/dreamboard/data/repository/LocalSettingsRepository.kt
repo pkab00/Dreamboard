@@ -18,6 +18,7 @@ class LocalSettingsRepository(private val context: Context) {
         val MEMORY_CACHING = booleanPreferencesKey("memory_caching")
         val DISC_CACHING = booleanPreferencesKey("disc_caching")
         val DARK_THEME = booleanPreferencesKey("dark_theme")
+        val DISABLE_AI = booleanPreferencesKey("disable_ai")
     }
 
     private val Context.localDataStore by PREFS_NAME
@@ -28,7 +29,8 @@ class LocalSettingsRepository(private val context: Context) {
             LocalSettingsState(
                 memoryCache = preferences[Keys.MEMORY_CACHING] ?: defaults.memoryCache,
                 discCache = preferences[Keys.DISC_CACHING] ?: defaults.discCache,
-                darkTheme = preferences[Keys.DARK_THEME] ?: defaults.darkTheme
+                darkTheme = preferences[Keys.DARK_THEME] ?: defaults.darkTheme,
+                disableAi = preferences[Keys.DISABLE_AI] ?: defaults.disableAi
             )
         }
 
@@ -50,6 +52,12 @@ class LocalSettingsRepository(private val context: Context) {
         }
     }
 
+    suspend fun updateDisableAi(enabled: Boolean) {
+        context.localDataStore.edit { preferences ->
+            preferences[Keys.DISABLE_AI] = enabled
+        }
+    }
+
     suspend fun isMemoryCachingEnabled(): Boolean {
         return getSettings().first().memoryCache
     }
@@ -60,5 +68,9 @@ class LocalSettingsRepository(private val context: Context) {
 
     suspend fun isDarkThemeEnabled(): Boolean {
         return getSettings().first().darkTheme
+    }
+
+    suspend fun isAiDisabled(): Boolean {
+        return getSettings().first().disableAi
     }
 }

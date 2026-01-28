@@ -22,6 +22,7 @@ class ImageRepository(
 
     fun getImages(
         imageFormat: ImageFormat,
+        aiGenerated: Boolean?,
         term: String,
         page: Int,
         perPage: Int
@@ -33,7 +34,7 @@ class ImageRepository(
             return@flow
         } else {
             val callResult = safeApiCall {
-                remoteDataSource.getImages(imageFormat.apiName, term, page, perPage)
+                remoteDataSource.getImages(imageFormat.apiName, aiGenerated, term, page, perPage)
             }
             emit(callResult.map { it.toDomain() })
         }
