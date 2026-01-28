@@ -1,13 +1,13 @@
 package com.vbshkn.dreamboard.data.local.model
 
-data class LocalSettingsState(
+data class UserSettings(
     val memoryCache: Boolean,
     val discCache: Boolean,
     val darkTheme: Boolean,
     val disableAi: Boolean
 ) {
     companion object {
-        fun getDefaultState() = LocalSettingsState(
+        fun getDefault() = UserSettings(
             memoryCache = false,
             discCache = false,
             darkTheme = false,

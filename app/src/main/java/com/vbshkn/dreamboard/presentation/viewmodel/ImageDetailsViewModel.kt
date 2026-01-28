@@ -5,11 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import coil3.request.CachePolicy
-import com.vbshkn.dreamboard.data.repository.ImageRepository
-import com.vbshkn.dreamboard.data.repository.LocalSettingsRepository
+import com.vbshkn.dreamboard.domain.repository.ImageRepository
+import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
 import com.vbshkn.dreamboard.data.service.ImageDownloadService
 import com.vbshkn.dreamboard.data.service.ShareDataService
-import com.vbshkn.dreamboard.domain.model.Image
+import com.vbshkn.dreamboard.domain.model.ImageEntity
 import com.vbshkn.dreamboard.presentation.navigation.NavRoute
 import com.vbshkn.dreamboard.presentation.state.ImageDetailsScreenState
 import com.vbshkn.dreamboard.util.Resource
@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 class ImageDetailsViewModel(
     savedStateHandle: SavedStateHandle,
     private val imageRepository: ImageRepository,
-    private val localSettingsRepository: LocalSettingsRepository,
+    private val userSettingsRepository: UserSettingsRepository,
     private val imageDownloadService: ImageDownloadService,
     private val shareDataService: ShareDataService
 ) : ViewModel() {
@@ -35,7 +35,7 @@ class ImageDetailsViewModel(
     private var _state = MutableStateFlow(ImageDetailsScreenState())
     val state = _state.asStateFlow()
 
-    val memoryCachePolicy = localSettingsRepository.getSettings()
+    val memoryCachePolicy = userSettingsRepository.getSettings()
         .map { settingsState ->
             if(settingsState.memoryCache) CachePolicy.ENABLED
             else CachePolicy.DISABLED
@@ -45,7 +45,7 @@ class ImageDetailsViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = CachePolicy.DISABLED
         )
-    val discCachePolicy = localSettingsRepository.getSettings()
+    val discCachePolicy = userSettingsRepository.getSettings()
         .map { settingsState ->
             if (settingsState.discCache) CachePolicy.ENABLED
             else CachePolicy.DISABLED
@@ -64,7 +64,7 @@ class ImageDetailsViewModel(
         when (resource) {
             is Resource.Success -> _state.update { state ->
                 state.copy(
-                    image = resource.body,
+                    imageEntity = resource.body,
                     isLoading = false
                 )
             }
@@ -82,11 +82,11 @@ class ImageDetailsViewModel(
         }
     }.launchIn(viewModelScope)
 
-    fun downloadImageToDevice(image: Image) = viewModelScope.launch {
-        imageDownloadService.downloadAsJpeg(image)
+    fun downloadImageToDevice(imageEntity: ImageEntity) = viewModelScope.launch {
+        imageDownloadService.downloadAsJpeg(imageEntity)
     }
 
-    fun shareImage(image: Image) {
-        shareDataService.shareString(image.path!!, "Share the link")
+    fun shareImage(imageEntity: ImageEntity) {
+        shareDataService.shareString(imageEntity.path!!, "Share the link")
     }
 }

@@ -1,15 +1,15 @@
-package com.vbshkn.dreamboard.data.repository
+package com.vbshkn.dreamboard.data.local.datastore
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
-import com.vbshkn.dreamboard.data.local.model.LocalSettingsState
+import com.vbshkn.dreamboard.data.local.model.UserSettings
+import com.vbshkn.dreamboard.domain.datasource.UserSettingsSource
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-class LocalSettingsRepository(private val context: Context) {
+class UserSettingsDataStore(private val context: Context) : UserSettingsSource {
     companion object {
         private val PREFS_NAME = preferencesDataStore("app_local_settings")
     }
@@ -22,55 +22,40 @@ class LocalSettingsRepository(private val context: Context) {
     }
 
     private val Context.localDataStore by PREFS_NAME
-    private val defaults by lazy { LocalSettingsState.getDefaultState() }
+    private val defaults by lazy { UserSettings.getDefault() }
 
-    fun getSettings(): Flow<LocalSettingsState> =
-        context.localDataStore.data.map { preferences ->
-            LocalSettingsState(
+    override fun getSettings(): Flow<UserSettings> {
+        return context.localDataStore.data.map { preferences ->
+            UserSettings(
                 memoryCache = preferences[Keys.MEMORY_CACHING] ?: defaults.memoryCache,
                 discCache = preferences[Keys.DISC_CACHING] ?: defaults.discCache,
                 darkTheme = preferences[Keys.DARK_THEME] ?: defaults.darkTheme,
                 disableAi = preferences[Keys.DISABLE_AI] ?: defaults.disableAi
             )
         }
+    }
 
-    suspend fun updateMemoryCaching(enabled: Boolean) {
+    override suspend fun updateMemoryCaching(enabled: Boolean) {
         context.localDataStore.edit { preferences ->
             preferences[Keys.MEMORY_CACHING] = enabled
         }
     }
 
-    suspend fun updateDiscCaching(enabled: Boolean) {
+    override suspend fun updateDiscCaching(enabled: Boolean) {
         context.localDataStore.edit { preferences ->
             preferences[Keys.DISC_CACHING] = enabled
         }
     }
 
-    suspend fun updateDarkTheme(enabled: Boolean) {
-        context.localDataStore.edit { preferences ->
-            preferences[Keys.DARK_THEME] = enabled
-        }
-    }
-
-    suspend fun updateDisableAi(enabled: Boolean) {
+    override suspend fun updateDisableAi(enabled: Boolean) {
         context.localDataStore.edit { preferences ->
             preferences[Keys.DISABLE_AI] = enabled
         }
     }
 
-    suspend fun isMemoryCachingEnabled(): Boolean {
-        return getSettings().first().memoryCache
-    }
-
-    suspend fun isDiscCachingEnabled(): Boolean {
-        return getSettings().first().discCache
-    }
-
-    suspend fun isDarkThemeEnabled(): Boolean {
-        return getSettings().first().darkTheme
-    }
-
-    suspend fun isAiDisabled(): Boolean {
-        return getSettings().first().disableAi
+    override suspend fun updateDarkTheme(enabled: Boolean) {
+        context.localDataStore.edit { preferences ->
+            preferences[Keys.DARK_THEME] = enabled
+        }
     }
 }

@@ -16,7 +16,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,7 +30,7 @@ import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.vbshkn.dreamboard.domain.model.Image
+import com.vbshkn.dreamboard.domain.model.ImageEntity
 import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
 
 @Composable
@@ -49,7 +48,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
             item {
                 ImageGrid(
                     title = key.replaceFirstChar { it.uppercaseChar() },
-                    images = value,
+                    imageEntities = value,
                     memoryCachePolicy = memoryCachePolicy,
                     discCachePolicy = discCachePolicy
                 )
@@ -62,7 +61,7 @@ fun HomeScreen(viewModel: HomeViewModel) {
 @Composable
 fun ImageGrid(
     title: String,
-    images: List<Image>,
+    imageEntities: List<ImageEntity>,
     memoryCachePolicy: CachePolicy,
     discCachePolicy: CachePolicy
 ) {
@@ -81,10 +80,10 @@ fun ImageGrid(
             rows = GridCells.Fixed(1),
             modifier = Modifier.height(100.dp)
         ) {
-            if (images.isEmpty()) {
+            if (imageEntities.isEmpty()) {
                 item { CircularProgressIndicator() }
             } else {
-                items(images, key = { it.id }) {
+                items(imageEntities, key = { it.id }) {
                     ImageGridItem(
                         url = it.path,
                         memoryCachePolicy = memoryCachePolicy,

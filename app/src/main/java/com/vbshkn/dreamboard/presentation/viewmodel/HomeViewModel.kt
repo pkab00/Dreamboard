@@ -3,9 +3,9 @@ package com.vbshkn.dreamboard.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil3.request.CachePolicy
-import com.vbshkn.dreamboard.data.repository.ImageRepository
-import com.vbshkn.dreamboard.data.repository.LocalSettingsRepository
-import com.vbshkn.dreamboard.domain.model.Image
+import com.vbshkn.dreamboard.domain.repository.ImageRepository
+import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
+import com.vbshkn.dreamboard.domain.model.ImageEntity
 import com.vbshkn.dreamboard.util.ImageFormat
 import com.vbshkn.dreamboard.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,13 +16,12 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val imageRepository: ImageRepository,
-    private val localSettingsRepository: LocalSettingsRepository
+    private val userSettingsRepository: UserSettingsRepository
 ) : ViewModel() {
-    private val _imageMap = MutableStateFlow<Map<String, List<Image>>>(
+    private val _imageEntityMap = MutableStateFlow<Map<String, List<ImageEntity>>>(
         mapOf(
             "nature" to emptyList(),
             "people" to emptyList(),
@@ -30,9 +29,9 @@ class HomeViewModel(
             "dream" to emptyList()
         )
     )
-    val imageMap = _imageMap.asStateFlow()
+    val imageMap = _imageEntityMap.asStateFlow()
     private val picturesPerRow = 30
-    val memoryCachePolicy = localSettingsRepository.getSettings()
+    val memoryCachePolicy = userSettingsRepository.getSettings()
         .map { settingsState ->
             if(settingsState.memoryCache) CachePolicy.ENABLED
             else CachePolicy.DISABLED
@@ -42,7 +41,7 @@ class HomeViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = CachePolicy.DISABLED
         )
-    val discCachePolicy = localSettingsRepository.getSettings()
+    val discCachePolicy = userSettingsRepository.getSettings()
         .map { settingsState ->
             if (settingsState.discCache) CachePolicy.ENABLED
             else CachePolicy.DISABLED
@@ -65,9 +64,9 @@ class HomeViewModel(
                 when (resource) {
                     is Resource.Success -> {
                         resource.body?.let { imageList ->
-                            _imageMap.update { map ->
+                            _imageEntityMap.update { map ->
                                 map.toMutableMap().apply {
-                                    this[term] = imageList.images
+                                    this[term] = imageList.imageEntities
                                 }
                             }
                         }

@@ -7,12 +7,16 @@ import coil3.disk.directory
 import coil3.memory.MemoryCache
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import com.vbshkn.dreamboard.BuildConfig
+import com.vbshkn.dreamboard.data.local.datastore.UserSettingsDataStore
+import com.vbshkn.dreamboard.domain.datasource.UserSettingsSource
 import com.vbshkn.dreamboard.data.remote.RemoteImageDataSource
 import com.vbshkn.dreamboard.data.remote.api.VecteezyApi
 import com.vbshkn.dreamboard.data.remote.interceptor.AccountIdInterceptor
 import com.vbshkn.dreamboard.data.remote.interceptor.BearerAuthInterceptor
-import com.vbshkn.dreamboard.data.repository.ImageRepository
-import com.vbshkn.dreamboard.data.repository.LocalSettingsRepository
+import com.vbshkn.dreamboard.domain.repository.ImageRepository
+import com.vbshkn.dreamboard.data.repository.ImageRepositoryImpl
+import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
+import com.vbshkn.dreamboard.data.repository.UserSettingsRepositoryImpl
 import com.vbshkn.dreamboard.data.service.ImageDownloadService
 import com.vbshkn.dreamboard.data.service.ShareDataService
 import com.vbshkn.dreamboard.presentation.MainViewModel
@@ -69,9 +73,13 @@ class KoinManager(private val context: Context) {
         }
     }
 
+    val localModule = module {
+        single<UserSettingsSource> { UserSettingsDataStore(androidContext()) }
+    }
+
     val repositoryModule = module {
-        single<ImageRepository> { ImageRepository(get()) }
-        single<LocalSettingsRepository> { LocalSettingsRepository(androidContext()) }
+        single<ImageRepository> { ImageRepositoryImpl(get()) }
+        single<UserSettingsRepository> { UserSettingsRepositoryImpl(get()) }
     }
 
     val serviceModule = module {
@@ -92,6 +100,7 @@ class KoinManager(private val context: Context) {
         modules(
             listOf(
                 remoteModule,
+                localModule,
                 repositoryModule,
                 serviceModule,
                 viewModelModule

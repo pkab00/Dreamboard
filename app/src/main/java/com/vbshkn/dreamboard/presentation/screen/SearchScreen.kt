@@ -43,7 +43,7 @@ import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.vbshkn.dreamboard.domain.model.Image
+import com.vbshkn.dreamboard.domain.model.ImageEntity
 import com.vbshkn.dreamboard.presentation.viewmodel.SearchViewModel
 import com.vbshkn.dreamboard.util.ImageFormat
 
@@ -66,7 +66,7 @@ fun SearchScreen(
     ) {
         SearchBar(
             text = searchState.searchingText,
-            supportingText = "Images loaded: ${state.images.size}",
+            supportingText = "Images loaded: ${state.imageEntities.size}",
             onValueChange = { viewModel.onSearchTextChange(it) }
         )
         ImageFormatSelectionPanel(
@@ -83,7 +83,7 @@ fun SearchScreen(
             if (searchState.searchingText.isEmpty()) {
                 EmptySearchResultsPlaceholder()
             }
-            else if (state.isLoading && state.images.isEmpty()) {
+            else if (state.isLoading && state.imageEntities.isEmpty()) {
                 LoadingScreen()
             }
             else if (state.message != null) {
@@ -94,7 +94,7 @@ fun SearchScreen(
             }
             else {
                 SuccessScreen(
-                    images = state.images,
+                    imageEntities = state.imageEntities,
                     loading = state.isLoading,
                     onImageClick = onImageClick,
                     memoryCachePolicy = memoryCachePolicy,
@@ -182,7 +182,7 @@ private fun EmptySearchResultsPlaceholder() {
 
 @Composable
 private fun SuccessScreen(
-    images: List<Image>,
+    imageEntities: List<ImageEntity>,
     loading: Boolean,
     memoryCachePolicy: CachePolicy,
     discCachePolicy: CachePolicy,
@@ -195,7 +195,7 @@ private fun SuccessScreen(
         horizontalArrangement = Arrangement.spacedBy(7.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(images, key = { it.id }) { image ->
+        items(imageEntities, key = { it.id }) { image ->
             RemoteImageItem(
                 url = image.path,
                 caption = image.title,
@@ -206,7 +206,7 @@ private fun SuccessScreen(
         }
         item(span = StaggeredGridItemSpan.FullLine) {
             LoadMoreButton(
-                visible = images.isNotEmpty(),
+                visible = imageEntities.isNotEmpty(),
                 enable = !loading,
                 onClick = { onLoadMore() }
             )

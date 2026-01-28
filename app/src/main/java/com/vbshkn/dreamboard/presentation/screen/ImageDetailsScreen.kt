@@ -32,7 +32,7 @@ import coil3.request.crossfade
 import com.vbshkn.dreamboard.presentation.viewmodel.ImageDetailsViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
-import com.vbshkn.dreamboard.domain.model.Image
+import com.vbshkn.dreamboard.domain.model.ImageEntity
 
 @Composable
 fun ImageDetailsScreen(viewModel: ImageDetailsViewModel) {
@@ -51,7 +51,7 @@ fun ImageDetailsScreen(viewModel: ImageDetailsViewModel) {
             ErrorContent(message = state.message)
         } else {
             SuccessContent(
-                image = state.image!!,
+                imageEntity = state.imageEntity!!,
                 memoryCachePolicy = memoryCachePolicy,
                 discCachePolicy = discCachePolicy,
                 onDownload = viewModel::downloadImageToDevice,
@@ -92,9 +92,9 @@ private fun ImageItem(
 
 @Composable
 fun DetailsPanel(
-    image: Image,
-    onDownload: (Image) -> Unit,
-    onShare: (Image) -> Unit,
+    imageEntity: ImageEntity,
+    onDownload: (ImageEntity) -> Unit,
+    onShare: (ImageEntity) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -106,7 +106,7 @@ fun DetailsPanel(
             modifier = Modifier.padding(top = 10.dp)
         )
         Text(
-            text = image.title ?: "No title",
+            text = imageEntity.title ?: "No title",
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier.padding(horizontal = 5.dp)
         )
@@ -115,12 +115,12 @@ fun DetailsPanel(
             modifier = Modifier.fillMaxWidth()
         ) {
             Button(
-                onClick = { onDownload(image) },
+                onClick = { onDownload(imageEntity) },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Download")
             }
-            Button(onClick = { onShare(image) }) {
+            Button(onClick = { onShare(imageEntity) }) {
                 androidx.compose.foundation.Image(
                     imageVector = Icons.Filled.IosShare,
                     contentDescription = null
@@ -132,11 +132,11 @@ fun DetailsPanel(
 
 @Composable
 fun SuccessContent(
-    image: Image,
+    imageEntity: ImageEntity,
     memoryCachePolicy: CachePolicy,
     discCachePolicy: CachePolicy,
-    onDownload: (Image) -> Unit,
-    onShare: (Image) -> Unit
+    onDownload: (ImageEntity) -> Unit,
+    onShare: (ImageEntity) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -144,12 +144,12 @@ fun SuccessContent(
             .padding(horizontal = 5.dp)
     ) {
         ImageItem(
-            url = image.path,
+            url = imageEntity.path,
             memoryCachePolicy = memoryCachePolicy,
             discCachePolicy = discCachePolicy
         )
         DetailsPanel(
-            image = image,
+            imageEntity = imageEntity,
             onDownload = onDownload,
             onShare = onShare,
             modifier = Modifier.weight(1f)

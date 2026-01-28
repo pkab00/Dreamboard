@@ -2,9 +2,9 @@ package com.vbshkn.dreamboard.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vbshkn.dreamboard.data.local.model.LocalSettingsState
-import com.vbshkn.dreamboard.data.repository.ImageRepository
-import com.vbshkn.dreamboard.data.repository.LocalSettingsRepository
+import com.vbshkn.dreamboard.data.local.model.UserSettings
+import com.vbshkn.dreamboard.domain.repository.ImageRepository
+import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
 import com.vbshkn.dreamboard.presentation.state.SearchScreenUIState
 import com.vbshkn.dreamboard.presentation.state.SearchState
 import com.vbshkn.dreamboard.util.ImageFormat
@@ -24,12 +24,12 @@ import kotlinx.coroutines.flow.update
 @OptIn(FlowPreview::class)
 class SearchViewModel(
     private val imageRepository: ImageRepository,
-    private val localSettingsRepository: LocalSettingsRepository
+    private val userSettingsRepository: UserSettingsRepository
 ) : ViewModel() {
     private var _state = MutableStateFlow(SearchScreenUIState())
     val state = _state.asStateFlow()
 
-    private val _localSettings = localSettingsRepository.getSettings()
+    private val _localSettings = userSettingsRepository.getSettings()
     private var _searchingText = MutableStateFlow("")
     private var _selectedFormat = MutableStateFlow(ImageFormat.PHOTO)
     private var _currentPage = MutableStateFlow(1)
@@ -39,7 +39,7 @@ class SearchViewModel(
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = LocalSettingsState.getDefaultState()
+            initialValue = UserSettings.getDefault()
         )
 
     val searchState = combine(
@@ -97,7 +97,7 @@ class SearchViewModel(
         when (resource) {
             is Resource.Success -> _state.update { screenState ->
                 screenState.copy(
-                    images = screenState.images + (resource.body?.images ?: emptyList()),
+                    imageEntities = screenState.imageEntities + (resource.body?.imageEntities ?: emptyList()),
                     message = null,
                     isLoading = false
                 )
@@ -121,7 +121,7 @@ class SearchViewModel(
     private fun resetImageList() {
         _state.update { state ->
             state.copy(
-                images = emptyList()
+                imageEntities = emptyList()
             )
         }
     }
