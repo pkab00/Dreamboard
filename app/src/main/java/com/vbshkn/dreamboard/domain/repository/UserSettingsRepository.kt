@@ -5,8 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserSettingsRepository {
     fun getSettings(): Flow<UserSettings>
-    suspend fun updateMemoryCaching(enabled: Boolean)
-    suspend fun updateDiscCaching(enabled: Boolean)
-    suspend fun updateDisableAi(enabled: Boolean)
-    suspend fun updateDarkTheme(enabled: Boolean)
+    suspend fun updateSettings(transform: (UserSettings) -> UserSettings)
 }

@@ -10,6 +10,11 @@ import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
 import com.vbshkn.dreamboard.data.service.ImageDownloadService
 import com.vbshkn.dreamboard.data.service.ShareDataService
 import com.vbshkn.dreamboard.domain.model.ImageEntity
+import com.vbshkn.dreamboard.domain.service.ImageDownloader
+import com.vbshkn.dreamboard.domain.usecase.DownloadImageUseCase
+import com.vbshkn.dreamboard.domain.usecase.GetImageUseCase
+import com.vbshkn.dreamboard.domain.usecase.GetUserSettingsUseCase
+import com.vbshkn.dreamboard.domain.usecase.ShareTextDataUseCase
 import com.vbshkn.dreamboard.presentation.navigation.NavRoute
 import com.vbshkn.dreamboard.presentation.state.ImageDetailsScreenState
 import com.vbshkn.dreamboard.util.Resource
@@ -25,17 +30,17 @@ import kotlinx.coroutines.launch
 
 class ImageDetailsViewModel(
     savedStateHandle: SavedStateHandle,
-    private val imageRepository: ImageRepository,
-    private val userSettingsRepository: UserSettingsRepository,
-    private val imageDownloadService: ImageDownloadService,
-    private val shareDataService: ShareDataService
+    private val getImageUseCase: GetImageUseCase,
+    private val downloadImageUseCase: DownloadImageUseCase,
+    private val shareTextDataUseCase: ShareTextDataUseCase,
+    private val getUserSettingsUseCase: GetUserSettingsUseCase
 ) : ViewModel() {
     private val args = savedStateHandle.toRoute<NavRoute.ImageDetails>()
     val id = args.id
     private var _state = MutableStateFlow(ImageDetailsScreenState())
     val state = _state.asStateFlow()
 
-    val memoryCachePolicy = userSettingsRepository.getSettings()
+    val memoryCachePolicy = getUserSettingsUseCase()
         .map { settingsState ->
             if(settingsState.memoryCache) CachePolicy.ENABLED
             else CachePolicy.DISABLED
@@ -45,7 +50,7 @@ class ImageDetailsViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = CachePolicy.DISABLED
         )
-    val discCachePolicy = userSettingsRepository.getSettings()
+    val discCachePolicy = getUserSettingsUseCase()
         .map { settingsState ->
             if (settingsState.discCache) CachePolicy.ENABLED
             else CachePolicy.DISABLED
@@ -60,7 +65,7 @@ class ImageDetailsViewModel(
         loadImage()
     }
 
-    fun loadImage() = imageRepository.getImage(id).onEach { resource ->
+    fun loadImage() = getImageUseCase(id).onEach { resource ->
         when (resource) {
             is Resource.Success -> _state.update { state ->
                 state.copy(
@@ -83,10 +88,10 @@ class ImageDetailsViewModel(
     }.launchIn(viewModelScope)
 
     fun downloadImageToDevice(imageEntity: ImageEntity) = viewModelScope.launch {
-        imageDownloadService.downloadAsJpeg(imageEntity)
+        downloadImageUseCase(imageEntity)
     }
 
     fun shareImage(imageEntity: ImageEntity) {
-        shareDataService.shareString(imageEntity.path!!, "Share the link")
+        shareTextDataUseCase(imageEntity.path!!, "Share the link")
     }
 }

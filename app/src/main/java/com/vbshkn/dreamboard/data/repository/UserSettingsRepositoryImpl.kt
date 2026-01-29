@@ -12,19 +12,8 @@ class UserSettingsRepositoryImpl(
         return localSettingsSource.getSettings()
     }
 
-    override suspend fun updateMemoryCaching(enabled: Boolean) {
-        return localSettingsSource.updateMemoryCaching(enabled)
+    override suspend fun updateSettings(transform: (UserSettings) -> UserSettings) {
+        localSettingsSource.updateSettings(transform)
     }
 
-    override suspend fun updateDiscCaching(enabled: Boolean) {
-        return localSettingsSource.updateDiscCaching(enabled)
-    }
-
-    override suspend fun updateDarkTheme(enabled: Boolean) {
-        return localSettingsSource.updateDarkTheme(enabled)
-    }
-
-    override suspend fun updateDisableAi(enabled: Boolean) {
-        return localSettingsSource.updateDisableAi(enabled)
-    }
 }

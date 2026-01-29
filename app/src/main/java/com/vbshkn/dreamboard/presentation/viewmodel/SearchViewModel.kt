@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.vbshkn.dreamboard.data.local.model.UserSettings
 import com.vbshkn.dreamboard.domain.repository.ImageRepository
 import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
+import com.vbshkn.dreamboard.domain.usecase.GetImageListUseCase
+import com.vbshkn.dreamboard.domain.usecase.GetUserSettingsUseCase
 import com.vbshkn.dreamboard.presentation.state.SearchScreenUIState
 import com.vbshkn.dreamboard.presentation.state.SearchState
 import com.vbshkn.dreamboard.util.ImageFormat
@@ -23,13 +25,13 @@ import kotlinx.coroutines.flow.update
 
 @OptIn(FlowPreview::class)
 class SearchViewModel(
-    private val imageRepository: ImageRepository,
-    private val userSettingsRepository: UserSettingsRepository
+    private val getImageListUseCase: GetImageListUseCase,
+    private val getUserSettingsUseCase: GetUserSettingsUseCase
 ) : ViewModel() {
     private var _state = MutableStateFlow(SearchScreenUIState())
     val state = _state.asStateFlow()
 
-    private val _localSettings = userSettingsRepository.getSettings()
+    private val _localSettings = getUserSettingsUseCase()
     private var _searchingText = MutableStateFlow("")
     private var _selectedFormat = MutableStateFlow(ImageFormat.PHOTO)
     private var _currentPage = MutableStateFlow(1)
@@ -93,7 +95,7 @@ class SearchViewModel(
         term: String,
         page: Int = _currentPage.value,
         perPage: Int = 50
-    ) = imageRepository.getImages(format, aiGenerated, term, page, perPage).onEach { resource ->
+    ) = getImageListUseCase(format, aiGenerated, term, page, perPage).onEach { resource ->
         when (resource) {
             is Resource.Success -> _state.update { screenState ->
                 screenState.copy(

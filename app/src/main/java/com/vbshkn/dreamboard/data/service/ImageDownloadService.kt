@@ -6,12 +6,13 @@ import android.os.Environment
 import androidx.core.net.toUri
 import com.vbshkn.dreamboard.BuildConfig
 import com.vbshkn.dreamboard.domain.model.ImageEntity
+import com.vbshkn.dreamboard.domain.service.ImageDownloader
 
-class ImageDownloadService(context: Context) {
+class ImageDownloadService(context: Context) : ImageDownloader {
     private val downloadManager = context.getSystemService(DownloadManager::class.java)
     private val token = BuildConfig.VECTEEZY_SECRET_KEY
 
-    fun downloadAsJpeg(imageEntity: ImageEntity): Long {
+    override fun downloadImage(imageEntity: ImageEntity): Long {
         val request = DownloadManager.Request(imageEntity.path!!.toUri())
             .setMimeType(imageEntity.format.mimeType)
             .setTitle("image_${imageEntity.id}.${imageEntity.format.formatSuffix}")

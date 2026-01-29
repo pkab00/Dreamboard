@@ -1,4 +1,4 @@
-package com.vbshkn.dreamboard.data.local.datastore
+package com.vbshkn.dreamboard.data.local.datasource
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.vbshkn.dreamboard.data.local.model.UserSettings
 import com.vbshkn.dreamboard.domain.datasource.UserSettingsSource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class UserSettingsDataStore(private val context: Context) : UserSettingsSource {
@@ -35,27 +36,13 @@ class UserSettingsDataStore(private val context: Context) : UserSettingsSource {
         }
     }
 
-    override suspend fun updateMemoryCaching(enabled: Boolean) {
+    override suspend fun updateSettings(transform: (UserSettings) -> UserSettings) {
+        val modifiedSettings = transform(getSettings().first())
         context.localDataStore.edit { preferences ->
-            preferences[Keys.MEMORY_CACHING] = enabled
-        }
-    }
-
-    override suspend fun updateDiscCaching(enabled: Boolean) {
-        context.localDataStore.edit { preferences ->
-            preferences[Keys.DISC_CACHING] = enabled
-        }
-    }
-
-    override suspend fun updateDisableAi(enabled: Boolean) {
-        context.localDataStore.edit { preferences ->
-            preferences[Keys.DISABLE_AI] = enabled
-        }
-    }
-
-    override suspend fun updateDarkTheme(enabled: Boolean) {
-        context.localDataStore.edit { preferences ->
-            preferences[Keys.DARK_THEME] = enabled
+            preferences[Keys.MEMORY_CACHING] = modifiedSettings.memoryCache
+            preferences[Keys.DISC_CACHING] = modifiedSettings.discCache
+            preferences[Keys.DARK_THEME] = modifiedSettings.darkTheme
+            preferences[Keys.DISABLE_AI] = modifiedSettings.disableAi
         }
     }
 }

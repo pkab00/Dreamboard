@@ -6,6 +6,8 @@ import coil3.request.CachePolicy
 import com.vbshkn.dreamboard.domain.repository.ImageRepository
 import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
 import com.vbshkn.dreamboard.domain.model.ImageEntity
+import com.vbshkn.dreamboard.domain.usecase.GetImageListUseCase
+import com.vbshkn.dreamboard.domain.usecase.GetUserSettingsUseCase
 import com.vbshkn.dreamboard.util.ImageFormat
 import com.vbshkn.dreamboard.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,8 +20,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 class HomeViewModel(
-    private val imageRepository: ImageRepository,
-    private val userSettingsRepository: UserSettingsRepository
+    private val getImageListUseCase: GetImageListUseCase,
+    private val getUserSettingsUseCase: GetUserSettingsUseCase
 ) : ViewModel() {
     private val _imageEntityMap = MutableStateFlow<Map<String, List<ImageEntity>>>(
         mapOf(
@@ -31,7 +33,7 @@ class HomeViewModel(
     )
     val imageMap = _imageEntityMap.asStateFlow()
     private val picturesPerRow = 30
-    val memoryCachePolicy = userSettingsRepository.getSettings()
+    val memoryCachePolicy = getUserSettingsUseCase()
         .map { settingsState ->
             if(settingsState.memoryCache) CachePolicy.ENABLED
             else CachePolicy.DISABLED
@@ -41,7 +43,7 @@ class HomeViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = CachePolicy.DISABLED
         )
-    val discCachePolicy = userSettingsRepository.getSettings()
+    val discCachePolicy = getUserSettingsUseCase()
         .map { settingsState ->
             if (settingsState.discCache) CachePolicy.ENABLED
             else CachePolicy.DISABLED
@@ -59,7 +61,7 @@ class HomeViewModel(
     }
 
     fun loadImageRow(term: String) =
-        imageRepository.getImages(ImageFormat.PHOTO, null, term, 1, picturesPerRow)
+        getImageListUseCase(ImageFormat.PHOTO, null, term, 1, picturesPerRow)
             .onEach { resource ->
                 when (resource) {
                     is Resource.Success -> {

@@ -4,14 +4,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vbshkn.dreamboard.data.local.model.UserSettings
 import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
+import com.vbshkn.dreamboard.domain.usecase.GetUserSettingsUseCase
+import com.vbshkn.dreamboard.domain.usecase.UpdateUserSettingsUseCase
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val settingsRepository: UserSettingsRepository
+    private val getUserSettingsUseCase: GetUserSettingsUseCase,
+    private val updateUserSettingsUseCase: UpdateUserSettingsUseCase
 ) : ViewModel() {
-    val state = settingsRepository.getSettings()
+    val state = getUserSettingsUseCase()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -20,25 +23,25 @@ class SettingsViewModel(
 
     fun onSwitchMemoryCaching(newValue: Boolean) {
         viewModelScope.launch {
-            settingsRepository.updateMemoryCaching(newValue)
+            updateUserSettingsUseCase { it.copy(memoryCache = newValue) }
         }
     }
 
     fun onSwitchDickCaching(newValue: Boolean) {
         viewModelScope.launch {
-            settingsRepository.updateDiscCaching(newValue)
+            updateUserSettingsUseCase { it.copy(discCache = newValue) }
         }
     }
 
     fun onSwitchDarkTheme(newValue: Boolean) {
         viewModelScope.launch {
-            settingsRepository.updateDarkTheme(newValue)
+            updateUserSettingsUseCase { it.copy(darkTheme = newValue) }
         }
     }
 
     fun onSwitchDisableAi(newValue: Boolean) {
         viewModelScope.launch {
-            settingsRepository.updateDisableAi(newValue)
+            updateUserSettingsUseCase { it.copy(disableAi = newValue) }
         }
     }
 }
