@@ -11,6 +11,7 @@ import com.vbshkn.dreamboard.presentation.state.SearchScreenUIState
 import com.vbshkn.dreamboard.presentation.state.SearchState
 import com.vbshkn.dreamboard.util.ImageFormat
 import com.vbshkn.dreamboard.util.Resource
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,9 +23,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import javax.inject.Inject
 
+@HiltViewModel
 @OptIn(FlowPreview::class)
-class SearchViewModel(
+class SearchViewModel @Inject constructor(
     private val getImageListUseCase: GetImageListUseCase,
     private val getUserSettingsUseCase: GetUserSettingsUseCase
 ) : ViewModel() {

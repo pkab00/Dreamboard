@@ -11,8 +11,9 @@ import com.vbshkn.dreamboard.util.Resource
 import com.vbshkn.dreamboard.util.SafeApiCaller
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class ImageRepositoryImpl(
+class ImageRepositoryImpl @Inject constructor(
     private val remoteDataSource: RemoteImageDataSource
 ) : ImageRepository, SafeApiCaller {
     override fun getImage(id: Long): Flow<Resource<ImageEntity>> = flow {

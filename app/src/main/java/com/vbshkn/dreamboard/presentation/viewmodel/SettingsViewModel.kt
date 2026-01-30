@@ -6,11 +6,14 @@ import com.vbshkn.dreamboard.data.local.model.UserSettings
 import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
 import com.vbshkn.dreamboard.domain.usecase.GetUserSettingsUseCase
 import com.vbshkn.dreamboard.domain.usecase.UpdateUserSettingsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SettingsViewModel(
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
     private val getUserSettingsUseCase: GetUserSettingsUseCase,
     private val updateUserSettingsUseCase: UpdateUserSettingsUseCase
 ) : ViewModel() {

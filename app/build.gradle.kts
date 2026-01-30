@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    id("com.google.dagger.hilt.android") version "2.59"
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     kotlin("plugin.serialization") version "2.3.0"
 }
@@ -32,13 +33,23 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
         buildConfig = true
     }
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
+    }
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 dependencies {
@@ -53,7 +64,8 @@ dependencies {
     testImplementation(libs.junit)
 
     implementation(libs.androidx.appcompat) // AppCompat
-    implementation(libs.insert.koin.koin.android) // Koin
+    //implementation(libs.insert.koin.koin.android) // Koin
+    //implementation(libs.koin.androidx.compose) // Koin for Compose
     implementation(libs.retrofit) // Retrofit
     implementation(libs.converter.gson) // Gson Converter for Retrofit
     implementation(libs.okhttp) // OkHttp
@@ -63,16 +75,13 @@ dependencies {
     implementation(libs.coil.network.okhttp) // OkHttp client for Coil
     implementation(libs.androidx.compose.material.icons.extended) // Material Icons
     implementation(libs.androidx.navigation.compose) // Compose Navigation
-    implementation(libs.koin.androidx.compose) // Koin for Compose
     implementation(libs.kotlinx.serialization.json) // Serialization
     implementation (libs.androidx.datastore.preferences) // Jetpack DatsStore
     implementation(libs.core.splashscreen) // SplashScreen
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
-    implementation(libs.androidx.hilt.lifecycle.viewmodel)
-    ksp(libs.androidx.hilt.compiler)
-    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.navigation.compose)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

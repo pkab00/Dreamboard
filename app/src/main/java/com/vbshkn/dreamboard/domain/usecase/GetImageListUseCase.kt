@@ -5,8 +5,9 @@ import com.vbshkn.dreamboard.domain.repository.ImageRepository
 import com.vbshkn.dreamboard.util.ImageFormat
 import com.vbshkn.dreamboard.util.Resource
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class GetImageListUseCase(
+class GetImageListUseCase @Inject constructor(
     private val imageRepository: ImageRepository
 ) {
     operator fun invoke(

@@ -7,8 +7,12 @@ import androidx.core.net.toUri
 import com.vbshkn.dreamboard.BuildConfig
 import com.vbshkn.dreamboard.domain.model.ImageEntity
 import com.vbshkn.dreamboard.domain.service.ImageDownloader
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class ImageDownloadService(context: Context) : ImageDownloader {
+class ImageDownloadService @Inject constructor(
+    @ApplicationContext context: Context
+) : ImageDownloader {
     private val downloadManager = context.getSystemService(DownloadManager::class.java)
     private val token = BuildConfig.VECTEEZY_SECRET_KEY
 

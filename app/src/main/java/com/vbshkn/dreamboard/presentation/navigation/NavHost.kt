@@ -1,6 +1,7 @@
 package com.vbshkn.dreamboard.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,9 +10,6 @@ import com.vbshkn.dreamboard.presentation.screen.ImageDetailsScreen
 import com.vbshkn.dreamboard.presentation.screen.SearchScreen
 import com.vbshkn.dreamboard.presentation.screen.SettingsScreen
 import com.vbshkn.dreamboard.presentation.viewmodel.HomeViewModel
-import com.vbshkn.dreamboard.presentation.viewmodel.ImageDetailsViewModel
-import com.vbshkn.dreamboard.presentation.viewmodel.SearchViewModel
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun NavHost(navController: NavHostController) {
@@ -20,19 +18,19 @@ fun NavHost(navController: NavHostController) {
         startDestination = NavRoute.Home
     ) {
         composable<NavRoute.Home> {
-            HomeScreen(viewModel = koinViewModel())
+            HomeScreen(hiltViewModel())
         }
         composable<NavRoute.Search> {
             SearchScreen(
-                viewModel = koinViewModel(),
+                viewModel = hiltViewModel(),
                 onImageClick = { navController.navigate(NavRoute.ImageDetails(it)) }
             )
         }
         composable<NavRoute.Settings> {
-            SettingsScreen(viewModel = koinViewModel())
+            SettingsScreen(viewModel = hiltViewModel())
         }
         composable<NavRoute.ImageDetails> {
-            ImageDetailsScreen(viewModel = koinViewModel())
+            ImageDetailsScreen(viewModel = hiltViewModel())
         }
     }
 }

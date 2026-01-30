@@ -18,6 +18,7 @@ import com.vbshkn.dreamboard.domain.usecase.ShareTextDataUseCase
 import com.vbshkn.dreamboard.presentation.navigation.NavRoute
 import com.vbshkn.dreamboard.presentation.state.ImageDetailsScreenState
 import com.vbshkn.dreamboard.util.Resource
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,8 +28,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ImageDetailsViewModel(
+@HiltViewModel
+class ImageDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getImageUseCase: GetImageUseCase,
     private val downloadImageUseCase: DownloadImageUseCase,

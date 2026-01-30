@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
 import com.vbshkn.dreamboard.domain.usecase.GetUserSettingsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import javax.inject.Inject
 
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val getUserSettingsUseCase: GetUserSettingsUseCase
 ) : ViewModel() {
     val isDarkThemeEnabled = getUserSettingsUseCase()

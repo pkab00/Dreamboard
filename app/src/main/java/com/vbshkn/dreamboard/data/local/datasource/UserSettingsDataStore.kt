@@ -6,11 +6,15 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import com.vbshkn.dreamboard.data.local.model.UserSettings
 import com.vbshkn.dreamboard.domain.datasource.UserSettingsSource
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class UserSettingsDataStore(private val context: Context) : UserSettingsSource {
+class UserSettingsDataStore @Inject constructor(
+    @ApplicationContext private val context: Context
+) : UserSettingsSource {
     companion object {
         private val PREFS_NAME = preferencesDataStore("app_local_settings")
     }

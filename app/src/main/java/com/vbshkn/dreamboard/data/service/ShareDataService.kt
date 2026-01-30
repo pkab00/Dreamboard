@@ -2,8 +2,12 @@ package com.vbshkn.dreamboard.data.service
 
 import android.content.Context
 import android.content.Intent
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class ShareDataService(private val context: Context) {
+class ShareDataService @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
     fun shareString(text: String, title: String) {
         val sendIntent = Intent().apply {
             action = Intent.ACTION_SEND
