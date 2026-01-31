@@ -40,13 +40,12 @@ class UserSettingsDataStore @Inject constructor(
         }
     }
 
-    override suspend fun updateSettings(transform: (UserSettings) -> UserSettings) {
-        val modifiedSettings = transform(getSettings().first())
+    override suspend fun updateSettings(newSettings: UserSettings) {
         context.localDataStore.edit { preferences ->
-            preferences[Keys.MEMORY_CACHING] = modifiedSettings.memoryCache
-            preferences[Keys.DISC_CACHING] = modifiedSettings.discCache
-            preferences[Keys.DARK_THEME] = modifiedSettings.darkTheme
-            preferences[Keys.DISABLE_AI] = modifiedSettings.disableAi
+            preferences[Keys.MEMORY_CACHING] = newSettings.memoryCache
+            preferences[Keys.DISC_CACHING] = newSettings.discCache
+            preferences[Keys.DARK_THEME] = newSettings.darkTheme
+            preferences[Keys.DISABLE_AI] = newSettings.disableAi
         }
     }
 }

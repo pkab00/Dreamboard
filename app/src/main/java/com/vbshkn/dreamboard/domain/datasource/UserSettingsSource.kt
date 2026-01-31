@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserSettingsSource {
     fun getSettings(): Flow<UserSettings>
-    suspend fun updateSettings(transform: (UserSettings) -> UserSettings)
+    suspend fun updateSettings(newSettings: UserSettings)
 }

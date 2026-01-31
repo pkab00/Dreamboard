@@ -4,6 +4,7 @@ import com.vbshkn.dreamboard.domain.datasource.UserSettingsSource
 import com.vbshkn.dreamboard.data.local.model.UserSettings
 import com.vbshkn.dreamboard.domain.repository.UserSettingsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class UserSettingsRepositoryImpl @Inject constructor(
@@ -14,7 +15,8 @@ class UserSettingsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSettings(transform: (UserSettings) -> UserSettings) {
-        localSettingsSource.updateSettings(transform)
+        val currentSettings = getSettings().first()
+        localSettingsSource.updateSettings(transform(currentSettings))
     }
 
 }

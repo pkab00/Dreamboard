@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -31,8 +32,8 @@ class SearchViewModel @Inject constructor(
     private val getImageListUseCase: GetImageListUseCase,
     private val getUserSettingsUseCase: GetUserSettingsUseCase
 ) : ViewModel() {
-    private var _state = MutableStateFlow(SearchScreenUIState())
-    val state = _state.asStateFlow()
+    val state: StateFlow<SearchScreenUIState>
+        field = MutableStateFlow(SearchScreenUIState())
 
     private val _localSettings = getUserSettingsUseCase()
     private var _searchingText = MutableStateFlow("")
@@ -100,7 +101,7 @@ class SearchViewModel @Inject constructor(
         perPage: Int = 50
     ) = getImageListUseCase(format, aiGenerated, term, page, perPage).onEach { resource ->
         when (resource) {
-            is Resource.Success -> _state.update { screenState ->
+            is Resource.Success -> state.update { screenState ->
                 screenState.copy(
                     imageEntities = screenState.imageEntities + (resource.body?.imageEntities ?: emptyList()),
                     message = null,
@@ -108,14 +109,14 @@ class SearchViewModel @Inject constructor(
                 )
             }
 
-            is Resource.Error -> _state.update { screenState ->
+            is Resource.Error -> state.update { screenState ->
                 screenState.copy(
                     message = resource.message,
                     isLoading = false
                 )
             }
 
-            is Resource.Loading -> _state.update { screenState ->
+            is Resource.Loading -> state.update { screenState ->
                 screenState.copy(
                     isLoading = true
                 )
@@ -124,7 +125,7 @@ class SearchViewModel @Inject constructor(
     }.launchIn(viewModelScope)
 
     private fun resetImageList() {
-        _state.update { state ->
+        state.update { state ->
             state.copy(
                 imageEntities = emptyList()
             )
