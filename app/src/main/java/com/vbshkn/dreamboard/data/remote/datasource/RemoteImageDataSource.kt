@@ -3,23 +3,32 @@ package com.vbshkn.dreamboard.data.remote.datasource
 import com.vbshkn.dreamboard.data.remote.api.VecteezyApi
 import com.vbshkn.dreamboard.data.remote.model.ImageListResponse
 import com.vbshkn.dreamboard.data.remote.model.ImageResponse
+import com.vbshkn.dreamboard.domain.datasource.ImageDataSource
 import retrofit2.Response
 import javax.inject.Inject
 
 class RemoteImageDataSource @Inject constructor(
     private val api: VecteezyApi
-) {
-    suspend fun getImage(id: Long): Response<ImageResponse> {
-        return api.getImage(id)
+) : ImageDataSource {
+    override suspend fun getImage(id: Long): ImageResponse {
+        val response = api.getImage(id)
+        if (response.isSuccessful) {
+            return response.body() ?: throw Exception("Empty body")
+        }
+        else throw Exception("API Error: ${response.code()}")
     }
 
-    suspend fun getImages(
+    override suspend fun getImages(
         contentType: String, aiGenerated: Boolean?, term: String, page: Int, perPage: Int
-    ): Response<ImageListResponse> {
+    ): ImageListResponse {
         val apiLimitation = 10_000
         if (page > apiLimitation || perPage > apiLimitation) {
             throw IllegalArgumentException("Parameters cannot exceed $apiLimitation")
         }
-        return api.getImages(contentType, aiGenerated, term, page, perPage)
+        val response = api.getImages(contentType, aiGenerated, term, page, perPage)
+        if (response.isSuccessful) {
+            return response.body() ?: throw Exception("Empty body")
+        }
+        else throw Exception("API Error: ${response.code()}")
     }
 }
