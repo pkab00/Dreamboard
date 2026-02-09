@@ -1,5 +1,6 @@
 package com.vbshkn.dreamboard.data.repository
 
+import com.google.common.truth.Truth.assertThat
 import com.vbshkn.dreamboard.data.local.model.UserSettings
 import com.vbshkn.dreamboard.domain.datasource.UserSettingsSource
 import io.mockk.coEvery
@@ -17,18 +18,18 @@ class UserSettingsRepositoryImplTest() {
     private val repository = UserSettingsRepositoryImpl(dataSource)
 
     @Test
-    fun `getSettings should emit mapped data from data source`() = runTest {
+    fun `getSettings emits mapped data from data source`() = runTest {
         val expected  = UserSettings.getDefault()
         every { dataSource.getSettings() } returns flowOf(expected)
 
         val actual = repository.getSettings().first()
 
-        assert(actual == expected)
+        assertThat(actual).isEqualTo(expected)
         verify(exactly = 1) { dataSource.getSettings() }
     }
 
     @Test
-    fun `updateSettings should update data in the data source`() = runTest {
+    fun `updateSettings updates data in the data source`() = runTest {
         val defaultSettings = UserSettings.getDefault()
         val expected = defaultSettings.copy(discCache = true, memoryCache = true)
         every { dataSource.getSettings() } returns flowOf(defaultSettings)
